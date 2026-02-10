@@ -14,11 +14,13 @@ CYAN = "\033[96m"
 YELLOW = "\033[93m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
+ITALIC = "\033[3m"
 
 def print_header():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{CYAN}{'='*50}")
     print(f"      EXAM TRAINER - 42 - PYTHON BASIC")
+    print(f"      {ITALIC}Par Jeremy Foeller")
     print(f"{'='*50}{RESET}\n")
 
 def charger_solution():
