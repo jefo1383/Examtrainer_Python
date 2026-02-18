@@ -18,7 +18,7 @@ BOLD = "\033[1m"
 def print_header():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{CYAN}{'='*50}")
-    print(f"      EXAM TRAINER - 42 - PYTHON BASIC")
+    print("      EXAM TRAINER - 42 - PYTHON BASIC")
     print(f"{'='*50}{RESET}\n")
 
 def charger_solution():
@@ -123,7 +123,7 @@ def run_tests(exercice):
 EXERCICES = [
     # === NIVEAU 1 ===
     {
-        'nom': '1. Case Letter',
+        'nom': 'Case Letter',
         'niveau': 1,
         'prototype': 'def case_letter(string: str) -> str:',
         'sujet': 'Écrivez une fonction qui transforme la chaîne de caractères donnée en alternant la casse.\n'
@@ -151,7 +151,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '2. FizzBuzz',
+        'nom': 'FizzBuzz',
         'niveau': 1,
         'prototype': 'def fizzbuzz(n: int) -> None:',
         'sujet': 'Écrivez un programme qui affiche les nombres de 1 à n inclus, suivis d\'un saut de ligne.\n'
@@ -184,7 +184,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '5. Convert Base',
+        'nom': 'Convert Base',
         'niveau': 1, 
         'prototype': 'def convert_base(n: str, base_from: int, base_to: int) -> str:',
         'sujet': 'Implémentez une fonction qui convertit une chaîne de caractères représentant un nombre\n'
@@ -212,7 +212,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '7. Bracket Validator',
+        'nom': 'Bracket Validator',
         'niveau': 1,
         'prototype': 'def bracket_validator(s: str) -> bool:',
         'sujet': 'Développez un algorithme capable de vérifier la validité d\'une expression contenant\n'
@@ -242,7 +242,7 @@ EXERCICES = [
 
     # === NIVEAU 2 ===
     {
-        'nom': '3. Matrix Reverse',
+        'nom': 'Matrix Reverse',
         'niveau': 2,
         'prototype': 'def matrix_reverse(matrix: list[list[int]]) -> list[list[int]]:',
         'sujet': 'Créez une fonction qui inverse l\'ordre des éléments au sein de chaque colonne (sous-liste)\n'
@@ -270,7 +270,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '12. Is Palindrome',
+        'nom': 'Is Palindrome',
         'niveau': 2,
         'prototype': 'def is_palindrome(s: str) -> bool:',
         'sujet': 'Écrivez une fonction permettant de déterminer si une chaîne de caractères est un palindrome.\n'
@@ -297,7 +297,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '10. Sort Rev Matrix',
+        'nom': 'Sort Rev Matrix',
         'niveau': 2,
         'prototype': 'def sort_rev_matrix(matrix: list[list[int]]) -> list[list[int]]:',
         'sujet': 'Implémentez une fonction qui trie indépendamment chaque ligne d\'une matrice 2D.\n'
@@ -327,7 +327,7 @@ EXERCICES = [
 
     # === NIVEAU 3 ===
     {
-        'nom': '4. Swap Chunk',
+        'nom': 'Swap Chunk',
         'niveau': 3,
         'prototype': 'def swap_chunk(arr: list[int], k: int) -> list[int]:',
         'sujet': 'Déplacez les k derniers éléments de la liste vers le début de celle-ci.\n'
@@ -357,7 +357,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '8. Rot 13',
+        'nom': 'Rot 13',
         'niveau': 3,
         'prototype': 'def rot13(txt: str) -> str:',
         'sujet': 'Reproduisez l\'algorithme de chiffrement par substitution ROT13.\n'
@@ -385,7 +385,7 @@ EXERCICES = [
         ]
     },
     {
-        'nom': '11. Transpose Matrix',
+        'nom': 'Transpose Matrix',
         'niveau': 3,
         'prototype': 'def transpose_matrix(matrix: list[list[int]]) -> list[list[int]]:',
         'sujet': 'Calculez et retournez la transposée de la matrice fournie en entrée.\n'
@@ -414,13 +414,13 @@ EXERCICES = [
 
     # === NIVEAU 4 ===
     {
-        'nom': '6. Crispy Sort',
+        'nom': 'Crispy Sort',
         'niveau': 4,
         'prototype': 'def crispy_sort(strings: list[str]) -> list[str]:',
         'sujet': 'Triez une liste de chaînes de caractères en appliquant successivement les critères suivants :\n'
                  '1. La longueur de la chaîne (croissant).\n'
                  '2. Le nombre de voyelles présentes (croissant).\n'
-                 '3. L\'ordre alphabétique standard (croissant).\n'
+                 '3. L\'ordre alphabétique standard sensible a la casse (croissant).\n'
                  'Type de retour attendu : list[str]',
         'exemples': '1. input = ["aa", "bz"]\n'
                     '   output = ["bz", "aa"]\n\n'
@@ -438,13 +438,13 @@ EXERCICES = [
             (["aa", "bz"], ["bz", "aa"]),
             (["ddd", "cc", "b", "a"], ["b", "a", "cc", "ddd"]),
             (["b", "a"], ["b", "a"]),
-            (["A", "a"], ["A", "a"]),
+            (["E", "b"], ["b", "E"]),
             (["test", "tost"], ["test", "tost"]),
             (["aaaa", "bb"], ["bb", "aaaa"])
         ]
     },
     {
-        'nom': '9. Custom Sort',
+        'nom': 'Custom Sort',
         'niveau': 4,
         'prototype': 'def custom_sort(words: list[str]) -> list[str]:',
         'sujet': 'Ordonnez la liste des mots fournie selon une logique spécifique :\n'
@@ -461,7 +461,7 @@ EXERCICES = [
         'capture_print': False,
         'tests': [
             (["b", "A", "a", "B"], ["A", "a", "B", "b"]),
-            (["aa", "Ab", "ac"], ["Ab", "aa", "ac"]),
+            (["aa", "Ab", "ac"], ["aa", "Ab", "ac"]),
             (["Zoo", "abeille"], ["Zoo", "abeille"]),
             (["", "a"], ["", "a"]),
             (["c", "C"], ["C", "c"]),
@@ -494,10 +494,11 @@ def main():
             continue
 
         print(f"\n{CYAN}{'='*20} PASSAGE AU NIVEAU {niv} {'='*20}{RESET}")
-        
+
+        # Choix aléatoire d'un exercice dans le niveau courant
+        exo = random.choice(levels[niv])
+
         while True:
-            # Choix aléatoire d'un exercice dans le niveau courant
-            exo = random.choice(levels[niv])
             
             # Lancement du test
             result = run_tests(exo)
@@ -509,6 +510,7 @@ def main():
             elif result == "next":
                 print(f"\n{YELLOW}>>> Changement d'exercice...{RESET}")
                 time.sleep(0.5)
+                exo = random.choice(levels[niv])
                 continue 
                 
             elif result is True:
