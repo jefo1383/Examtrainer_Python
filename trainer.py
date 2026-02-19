@@ -110,7 +110,9 @@ def run_tests(exercice):
                 print(f"{GREEN}TEST {i+1} ---------- 🔥{RESET}")
 
         except Exception as e:
-            print(f"\n{RED}❌ ERREUR TEST {i+1}: {e}{RESET}")
+            print(f"\n{RED}❌ ERREUR TEST {i+1} (Planté): {e}{RESET}")
+            print(f"   Entrée   : {args}")
+            print(f"   Attendu  : {repr(expected)}")
             return False
 
     print(f"\n{GREEN}✅ EXERCICE VALIDÉ !{RESET}\n")
@@ -128,7 +130,7 @@ EXERCICES = [
         'prototype': 'def case_letter(string: str) -> str:',
         'sujet': 'Écrivez une fonction qui transforme la chaîne de caractères donnée en alternant la casse.\n'
                  'Le premier caractère doit être en minuscule, le second en majuscule, et ainsi de suite.\n'
-                 'Les caractères non-alphabétiques doivent rester inchangés mais comptent dans le positionnement.\n'
+                 'Les caractères non-alphabétiques doivent rester inchangés et ne comptent pas dans le positionnement.\n'
                  'Type de retour attendu : str',
         'exemples': '1. input = "Hello world"\n'
                     '   output = "hElLo WoRlD"\n\n'
@@ -154,7 +156,7 @@ EXERCICES = [
         'nom': 'FizzBuzz',
         'niveau': 1,
         'prototype': 'def fizzbuzz(n: int) -> None:',
-        'sujet': 'Écrivez un programme qui affiche les nombres de 1 à n inclus, suivis d\'un saut de ligne.\n'
+        'sujet': 'Écrivez une fonction qui affiche les nombres de 1 à n inclus, suivis d\'un saut de ligne.\n'
                  'Pour les multiples de 3, affichez "fizz" au lieu du nombre.\n'
                  'Pour les multiples de 5, affichez "buzz".\n'
                  'Pour les multiples de 3 et 5, affichez "fizzbuzz".\n'
@@ -245,8 +247,8 @@ EXERCICES = [
         'nom': 'Matrix Reverse',
         'niveau': 2,
         'prototype': 'def matrix_reverse(matrix: list[list[int]]) -> list[list[int]]:',
-        'sujet': 'Créez une fonction qui inverse l\'ordre des éléments au sein de chaque colonne (sous-liste)\n'
-                 'd\'une matrice donnée. La structure des lignes doit être préservée, seul le contenu\n'
+        'sujet': 'Créez une fonction qui inverse l\'ordre des éléments au sein de chaque ligne (sous-liste)\n'
+                 'd\'une matrice donnée. L\'ordre des colonnes doit être préservée, seul le contenu\n'
                  'des "lignes" (listes internes) est inversé.\n'
                  'Type de retour attendu : list[list[int]]',
         'exemples': '1. input = [[1, 2], [3, 4]]\n'
@@ -346,13 +348,11 @@ EXERCICES = [
             (([1, 2, 3, 4], 10), [3, 4, 1, 2]),
             (([], 5), []),
             (([1, 2, 3], 3), [1, 2, 3]),
-            # Ajout test valid (grand k) à la place du test string
             (([1, 2, 3, 4, 5], 7), [4, 5, 1, 2, 3]),
             (([1, 2, 3], 0), [1, 2, 3]),
             (([1], 10), [1]),
             (([1, 2], 1), [2, 1]),
             (([10, 20, 30], 2), [20, 30, 10]),
-            # Ajout test valid (negatifs) à la place du test mixte
             (([-10, -20, -30], 1), [-30, -10, -20])
         ]
     },
@@ -456,7 +456,7 @@ EXERCICES = [
                     '   output = ["A", "a", "B", "b"]\n\n'
                     '2. input = ["Zoo", "abeille"]\n'
                     '   output = ["Zoo", "abeille"]\n\n'
-                    '3. input = ["Test", "test"]\n'
+                    '3. input = ["test", "Test"]\n'
                     '   output = ["Test", "test"]',
         'capture_print': False,
         'tests': [
@@ -465,7 +465,7 @@ EXERCICES = [
             (["Zoo", "abeille"], ["Zoo", "abeille"]),
             (["", "a"], ["", "a"]),
             (["c", "C"], ["C", "c"]),
-            (["beta", "Alpha"], ["Alpha", "beta"]),
+            (["beta", "Alpha"], ["beta", "Alpha"]),
             (["A", "B", "C"], ["A", "B", "C"]),
             (["a", "b", "c"], ["a", "b", "c"]),
             (["Z", "z", "a"], ["a", "Z", "z"]),
@@ -495,8 +495,13 @@ def main():
 
         print(f"\n{CYAN}{'='*20} PASSAGE AU NIVEAU {niv} {'='*20}{RESET}")
 
-        # Choix aléatoire d'un exercice dans le niveau courant
-        exo = random.choice(levels[niv])
+        # 1. On récupère les exercices du niveau et on les mélange
+        exos_courants = levels[niv].copy()
+        random.shuffle(exos_courants)
+        
+        # 2. On commence par le premier exercice de la liste mélangée
+        index_exo = 0
+        exo = exos_courants[index_exo]
 
         while True:
             
@@ -510,7 +515,10 @@ def main():
             elif result == "next":
                 print(f"\n{YELLOW}>>> Changement d'exercice...{RESET}")
                 time.sleep(0.5)
-                exo = random.choice(levels[niv])
+                # 3. On passe au suivant. 
+                # Le modulo permet de revenir à 0 si on dépasse la fin de la liste
+                index_exo = (index_exo + 1) % len(exos_courants)
+                exo = exos_courants[index_exo]
                 continue 
                 
             elif result is True:
