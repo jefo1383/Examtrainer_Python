@@ -125,9 +125,9 @@ def run_tests(exercice):
 EXERCICES = [
     # === NIVEAU 1 ===
     {
-        'nom': 'Case Letter',
+        'nom': 'String_sculptor',
         'niveau': 1,
-        'prototype': 'def case_letter(string: str) -> str:',
+        'prototype': 'def string_sculptor(text: str) -> str:',
         'sujet': 'Écrivez une fonction qui transforme la chaîne de caractères donnée en alternant la casse.\n'
                  'Le premier caractère doit être en minuscule, le second en majuscule, et ainsi de suite.\n'
                  'Les caractères non-alphabétiques doivent rester inchangés et ne comptent pas dans le positionnement.\n'
@@ -272,6 +272,42 @@ EXERCICES = [
         ]
     },
     {
+        'nom': 'Shadow merge',
+        'niveau': 2,
+        'prototype': 'def shadow_merge(list1: list[int], list2: list[int]) -> list[int]:',
+        'sujet': 'Créez une fonction qui fusionne deux listes triées en une troisième liste triée.\n'
+                 'Type de retour attendu : list[int]',
+        'exemples': '1. input = [1, 3, 5], [2, 4, 6]\n'
+                    '   output = [1, 2, 3, 4, 5, 6]\n\n'
+                    '2. input = [1, 2, 3], []\n'
+                    '   output = [1, 2, 3]\n\n'
+                    '3. input = [], []\n'
+                    '   output = []',
+        'capture_print': False,
+        'tests': [
+            # 1. Cas classique (alterné)
+            (([1, 3, 5], [2, 4, 6]), [1, 2, 3, 4, 5, 6]),
+            # 2. Une liste vide (droite)
+            (([1, 2, 3], []), [1, 2, 3]),
+            # 3. Deux listes vides
+            (([], []), []),
+            # 4. Une liste vide (gauche)
+            (([], [4, 5, 6]), [4, 5, 6]),
+            # 5. Listes de tailles différentes
+            (([1, 2], [3, 4, 5, 6]), [1, 2, 3, 4, 5, 6]),
+            # 6. Doublons (très important de vérifier ça)
+            (([1, 5, 5], [2, 5, 6]), [1, 2, 5, 5, 5, 6]),
+            # 7. Nombres négatifs
+            (([-5, 0, 2], [-3, 1]), [-5, -3, 0, 1, 2]),
+            # 8. Une liste entièrement plus petite que l'autre
+            (([1, 2, 3], [10, 11, 12]), [1, 2, 3, 10, 11, 12]),
+            # 9. L'autre liste entièrement plus grande
+            (([20, 30], [1, 2, 3]), [1, 2, 3, 20, 30]),
+            # 10. Listes avec un seul élément
+            (([10], [5]), [5, 10])
+        ]
+    },
+    {
         'nom': 'Is Palindrome',
         'niveau': 2,
         'prototype': 'def is_palindrome(s: str) -> bool:',
@@ -329,9 +365,9 @@ EXERCICES = [
 
     # === NIVEAU 3 ===
     {
-        'nom': 'Swap Chunk',
+        'nom': 'Twist shake',
         'niveau': 3,
-        'prototype': 'def swap_chunk(arr: list[int], k: int) -> list[int]:',
+        'prototype': 'def twist_shake(arr: list[int], k: int) -> list[int]:',
         'sujet': 'Déplacez les k derniers éléments de la liste vers le début de celle-ci.\n'
                  'La liste d\'origine ne doit pas être modifiée.\n'
                  'Seules des listes d\'entiers valides sont données en arguments.\n'
@@ -414,16 +450,16 @@ EXERCICES = [
 
     # === NIVEAU 4 ===
     {
-        'nom': 'Crispy Sort',
+        'nom': 'Cryptic Sort',
         'niveau': 4,
-        'prototype': 'def crispy_sort(strings: list[str]) -> list[str]:',
+        'prototype': 'def cryptic_sort(strings: list[str]) -> list[str]:',
         'sujet': 'Triez une liste de chaînes de caractères en appliquant successivement les critères suivants :\n'
                  '1. La longueur de la chaîne (croissant).\n'
-                 '2. Le nombre de voyelles présentes (croissant).\n'
-                 '3. L\'ordre alphabétique standard sensible a la casse (croissant).\n'
+                 '2. L\'ordre alphabétique standard insensible a la casse (croissant).\n'
+                 '3. Le nombre de voyelles présentes (croissant).\n'
                  'Type de retour attendu : list[str]',
         'exemples': '1. input = ["aa", "bz"]\n'
-                    '   output = ["bz", "aa"]\n\n'
+                    '   output = ["aa", "bz"]\n\n'
                     '2. input = ["ccc", "bb", "a"]\n'
                     '   output = ["a", "bb", "ccc"]\n\n'
                     '3. input = ["chat", "char"]\n'
@@ -435,11 +471,12 @@ EXERCICES = [
             (["banane", "pomme", "kiwi", "sac", "arc", "a", ""], 
              ["", "a", "arc", "sac", "kiwi", "pomme", "banane"]),
             ([], []),
-            (["aa", "bz"], ["bz", "aa"]),
-            (["ddd", "cc", "b", "a"], ["b", "a", "cc", "ddd"]),
-            (["b", "a"], ["b", "a"]),
+            (["aa", "bz"], ["aa", "bz"]),
+            (["Zebra", "apple", "Banana"], ["apple", "Zebra", "Banana"]),
+            (["b", "a"], ["a", "b"]),
             (["E", "b"], ["b", "E"]),
-            (["test", "tost"], ["test", "tost"]),
+            (["@#$!BB*&^%", "@#$!aa*&^%", "@#$!bb*&^%", "@#$!AA*&^%"], 
+             ["@#$!aa*&^%", "@#$!AA*&^%", "@#$!BB*&^%", "@#$!bb*&^%"]),
             (["aaaa", "bb"], ["bb", "aaaa"])
         ]
     },
