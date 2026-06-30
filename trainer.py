@@ -18,7 +18,7 @@ BOLD = "\033[1m"
 def print_header():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(f"{CYAN}{'='*50}")
-    print("      EXAM TRAINER - 42 - PYTHON BASIC")
+    print("      EXAM TRAINER - 42 - PYTHON")
     print(f"{'='*50}{RESET}\n")
 
 def charger_solution():
@@ -53,6 +53,7 @@ def run_tests(exercice):
       False -> Exercice raté
       "next" -> L'utilisateur veut changer d'exercice
       "exit" -> L'utilisateur veut quitter
+      "up" -> L'utilisateur veut passer au niveau superieur
     """
     func_name = get_function_name(exercice['prototype'])
     if not func_name:
@@ -68,11 +69,12 @@ def run_tests(exercice):
     
     # Gestion des commandes utilisateur
     print(f"{YELLOW}Modifie 'solution.py' et appuie sur Entrée.")
-    user_input = input(f"Commandes : 'next' pour changer, 'exit' pour quitter... {RESET}")
+    user_input = input(f"Commandes : 'next' (changer), 'up' (niv. suivant), 'exit' (quitter)... {RESET}")
     
     cmd = user_input.strip().lower()
     if cmd == "exit": return "exit"
     if cmd == "next": return "next"
+    if cmd == "up": return "up"
 
     print("Correction...", end="", flush=True)
     time.sleep(0.5)
@@ -97,8 +99,11 @@ def run_tests(exercice):
                 result = f.getvalue().strip()
                 expected = expected.strip()
             else:
-                if isinstance(args, tuple): result = user_func(*args)
-                else: result = user_func(args)
+                # Si args est un tuple, on décompresse les arguments (pour les fonctions à arguments multiples)
+                if isinstance(args, tuple) and type(args).__name__ == 'tuple': 
+                    result = user_func(*args)
+                else: 
+                    result = user_func(args)
                 
             if result != expected:
                 print(f"\n{RED}❌ TEST {i+1} ÉCHOUÉ{RESET}")
@@ -120,416 +125,618 @@ def run_tests(exercice):
     return True
 
 
-# --- LISTE COMPLETE DES 12 EXERCICES ---
+# --- LISTE COMPLETE DES EXERCICES ---
 
 EXERCICES = [
-    # === NIVEAU 1 ===
+    # ==========================================
+    # === CATEGORIE : PYTHON BASIC (Niv 1-4) ===
+    # ==========================================
     {
         'nom': 'String_sculptor',
-        'niveau': 1,
+        'categorie': 'basic', 'niveau': 1,
         'prototype': 'def string_sculptor(text: str) -> str:',
         'sujet': 'Écrivez une fonction qui transforme la chaîne de caractères donnée en alternant la casse.\n'
                  'Le premier caractère doit être en minuscule, le second en majuscule, et ainsi de suite.\n'
                  'Les caractères non-alphabétiques doivent rester inchangés et ne comptent pas dans le positionnement.\n'
                  'Type de retour attendu : str',
-        'exemples': '1. input = "Hello world"\n'
-                    '   output = "hElLo WoRlD"\n\n'
-                    '2. input = "we123lcome"\n'
-                    '   output = "wE123lCoMe"\n\n'
-                    '3. input = "Python 3.8"\n'
-                    '   output = "pYtHoN 3.8"',
+        'exemples': '1. input = "Hello world"\n   output = "hElLo WoRlD"\n\n'
+                    '2. input = "we123lcome"\n   output = "wE123lCoMe"\n\n'
+                    '3. input = "Python 3.8"\n   output = "pYtHoN 3.8"',
         'capture_print': False,
         'tests': [
             ("Hello world", "hElLo WoRlD"),
             ("we123lcome", "wE123lCoMe"),
             ("Python! 3.10", "pYtHoN! 3.10"),
-            ("", ""),
-            ("123456", "123456"),
-            ("A", "a"),
-            ("a b c", "a B c"),
-            ("   ", "   "),
-            ("zZzZ", "zZzZ"),
-            ("A!B@C#", "a!B@c#")
+            ("", ""), ("123456", "123456"), ("A", "a"), ("a b c", "a B c"),
+            ("   ", "   "), ("zZzZ", "zZzZ"), ("A!B@C#", "a!B@c#")
         ]
     },
     {
         'nom': 'FizzBuzz',
-        'niveau': 1,
+        'categorie': 'basic', 'niveau': 1,
         'prototype': 'def fizzbuzz(n: int) -> None:',
         'sujet': 'Écrivez une fonction qui affiche les nombres de 1 à n inclus, suivis d\'un saut de ligne.\n'
-                 'Pour les multiples de 3, affichez "fizz" au lieu du nombre.\n'
-                 'Pour les multiples de 5, affichez "buzz".\n'
-                 'Pour les multiples de 3 et 5, affichez "fizzbuzz".\n'
+                 'Pour les multiples de 3, affichez "fizz". Pour 5, "buzz". Pour 3 et 5, "fizzbuzz".\n'
                  'Type de retour attendu : None (Affichage sur la sortie standard)',
-        'exemples': '1. n = 3\n'
-                    '   1\n   2\n   fizz\n\n'
-                    '2. n = 5\n'
-                    '   1\n   2\n   fizz\n   4\n   buzz\n\n'
-                    '3. n = 0\n'
-                    '   (Aucun affichage)',
+        'exemples': '1. n = 3\n   1\n   2\n   fizz\n\n'
+                    '2. n = 5\n   1\n   2\n   fizz\n   4\n   buzz\n',
         'capture_print': True,
         'tests': [
             (3, "1\n2\nfizz"),
             (5, "1\n2\nfizz\n4\nbuzz"),
             (15, "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz\n11\nfizz\n13\n14\nfizzbuzz"),
-            (1, "1"),
-            (0, ""),
-            (2, "1\n2"),
-            (6, "1\n2\nfizz\n4\nbuzz\nfizz"),
-            (10, "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz"),
-            (-5, ""),
-            (100, 
-             "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz\n11\nfizz\n13\n14\nfizzbuzz\n16\n17\nfizz\n19\nbuzz\nfizz\n22\n23\nfizz\nbuzz\n"
-             "26\nfizz\n28\n29\nfizzbuzz\n31\n32\nfizz\n34\nbuzz\nfizz\n37\n38\nfizz\nbuzz\n41\nfizz\n43\n44\nfizzbuzz\n46\n47\nfizz\n49\nbuzz\n"
-             "fizz\n52\n53\nfizz\nbuzz\n56\nfizz\n58\n59\nfizzbuzz\n61\n62\nfizz\n64\nbuzz\nfizz\n67\n68\nfizz\nbuzz\n71\nfizz\n73\n74\nfizzbuzz\n"
-             "76\n77\nfizz\n79\nbuzz\nfizz\n82\n83\nfizz\nbuzz\n86\nfizz\n88\n89\nfizzbuzz\n91\n92\nfizz\n94\nbuzz\nfizz\n97\n98\nfizz\nbuzz")
+            (1, "1"), (0, ""), (2, "1\n2"), (6, "1\n2\nfizz\n4\nbuzz\nfizz"),
+            (10, "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz"), (-5, ""),
+            (20, "1\n2\nfizz\n4\nbuzz\nfizz\n7\n8\nfizz\nbuzz\n11\nfizz\n13\n14\nfizzbuzz\n16\n17\nfizz\n19\nbuzz")
         ]
     },
     {
         'nom': 'Convert Base',
-        'niveau': 1, 
+        'categorie': 'basic', 'niveau': 1, 
         'prototype': 'def convert_base(n: str, base_from: int, base_to: int) -> str:',
-        'sujet': 'Implémentez une fonction qui convertit une chaîne de caractères représentant un nombre\n'
-                 'd\'une base donnée vers une autre base cible. La fonction doit gérer les bases allant de 2 à 36.\n'
-                 'Si les paramètres de base sont invalides, la fonction doit échouer silencieusement.\n'
-                 'Type de retour attendu : str ou None',
-        'exemples': '1. input = ("10", 10, 2)  (Décimal vers Binaire)\n'
-                    '   output = "1010"\n\n'
-                    '2. input = ("FF", 16, 10) (Hexa vers Décimal)\n'
-                    '   output = "255"\n\n'
-                    '3. input = ("10", 1, 10)  (Base invalide)\n'
-                    '   output = None',
+        'sujet': 'Convertit une chaîne représentant un nombre d\'une base vers une autre base cible (2 à 36).\n'
+                 'Si les paramètres sont invalides, échouez silencieusement en renvoyant None.',
+        'exemples': '1. input = ("10", 10, 2)  -> "1010"\n'
+                    '2. input = ("FF", 16, 10) -> "255"\n'
+                    '3. input = ("10", 1, 10)  -> None',
         'capture_print': False,
         'tests': [
-            (("10", 10, 2), "1010"),
-            (("1A", 16, 10), "26"),
-            (("1010", 2, 16), "A"),
-            (("42", 10, 16), "2A"),
-            (("0", 10, 2), "0"),
-            (("10", 1, 10), None),
-            (("10", 10, 37), None),
-            (("FF", 16, 2), "11111111"),
-            (("Z", 36, 10), "35"),
+            (("10", 10, 2), "1010"), (("1A", 16, 10), "26"), (("1010", 2, 16), "A"),
+            (("42", 10, 16), "2A"), (("0", 10, 2), "0"), (("10", 1, 10), None),
+            (("10", 10, 37), None), (("FF", 16, 2), "11111111"), (("Z", 36, 10), "35"),
             (("7", 8, 2), "111")
         ]
     },
     {
         'nom': 'Bracket Validator',
-        'niveau': 1,
+        'categorie': 'basic', 'niveau': 1,
         'prototype': 'def bracket_validator(s: str) -> bool:',
-        'sujet': 'Développez un algorithme capable de vérifier la validité d\'une expression contenant\n'
-                 'des parenthèses, des crochets et des accolades. Une expression est considérée comme valide\n'
-                 'si tous les ouvrants sont correctement fermés dans le bon ordre d\'imbrication.\n'
+        'sujet': 'Vérifie la validité d\'une expression contenant parenthèses, crochets et accolades.\n'
+                 'Tous les autres caractères (lettres, chiffres, ponctuation) doivent être ignorés.\n'
                  'Type de retour attendu : bool',
-        'exemples': '1. input = "{[]}"\n'
-                    '   output = True\n\n'
-                    '2. input = "([)]"\n'
-                    '   output = False\n\n'
-                    '3. input = "(("\n'
-                    '   output = False',
+        'exemples': '1. input = "{a[b]c}"\n   output = True\n\n'
+                    '2. input = "(a[b)c]"\n   output = False\n\n'
+                    '3. input = "texte sans crochets"\n   output = True',
         'capture_print': False,
         'tests': [
-            ("{[]}", True),
-            ("([)]", False),
-            ("({[()]})", True),
-            ("((", False),
-            (")", False),
-            ("", True),
-            ("(((((((((())))))))))", True),
-            ("[]{}()", True),
-            ("[[[", False),
-            ("{[()]}", True)
+            ("{a[123]!}", True), 
+            ("x(y[z)a]b", False), 
+            ("({[a(b)c]})", True), 
+            ("1(2(3", False),
+            ("fin)", False), 
+            ("", True), # Chaîne vide : cas limite toujours important
+            (" ( ( a ( b ( c ) ) ) ) ", True), # Espaces et imbrications
+            ("[1]{2}(3)", True), 
+            ("a[b[c!@", False), 
+            ("{![@(#)]*}", True)
         ]
     },
-
-    # === NIVEAU 2 ===
     {
         'nom': 'Matrix Reverse',
-        'niveau': 2,
+        'categorie': 'basic', 'niveau': 2,
         'prototype': 'def matrix_reverse(matrix: list[list[int]]) -> list[list[int]]:',
-        'sujet': 'Créez une fonction qui inverse l\'ordre des éléments au sein de chaque ligne (sous-liste)\n'
-                 'd\'une matrice donnée. L\'ordre des colonnes doit être préservée, seul le contenu\n'
-                 'des "lignes" (listes internes) est inversé.\n'
+        'sujet': 'Inverse l\'ordre des éléments au sein de chaque ligne d\'une matrice.\n'
                  'Type de retour attendu : list[list[int]]',
-        'exemples': '1. input = [[1, 2], [3, 4]]\n'
-                    '   output = [[2, 1], [4, 3]]\n\n'
-                    '2. input = [[1, 2, 3]]\n'
-                    '   output = [[3, 2, 1]]\n\n'
-                    '3. input = []\n'
-                    '   output = []',
+        'exemples': '1. input = [[1, 2], [3, 4]] -> [[2, 1], [4, 3]]\n'
+                    '2. input = [[1, 2, 3]] -> [[3, 2, 1]]',
         'capture_print': False,
         'tests': [
-            ([[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[3, 2, 1], [6, 5, 4], [9, 8, 7]]),
-            ([], []),
-            ([[], []], [[], []]),
-            ([[1, 2], [], [10]], [[2, 1], [], [10]]),
-            ([[100, 2000]], [[2000, 100]]),
-            ([[1]], [[1]]),
-            ([[1, 2, 3, 4, 5]], [[5, 4, 3, 2, 1]]),
-            ([[0, 0, 1]], [[1, 0, 0]]),
-            ([[-1, -2]], [[-2, -1]]),
-            ([[1, 2], [1]], [[2, 1], [1]])
+            ([[1, 2, 3], [4, 5, 6]], [[3, 2, 1], [6, 5, 4]]), ([], []),
+            ([[], []], [[], []]), ([[1, 2], [], [10]], [[2, 1], [], [10]]),
+            ([[100, 2000]], [[2000, 100]]), ([[1]], [[1]]),
+            ([[1, 2, 3, 4, 5]], [[5, 4, 3, 2, 1]]), ([[0, 0, 1]], [[1, 0, 0]]),
+            ([[-1, -2]], [[-2, -1]]), ([[1, 2], [1]], [[2, 1], [1]])
         ]
     },
     {
         'nom': 'Shadow merge',
-        'niveau': 2,
+        'categorie': 'basic', 'niveau': 2,
         'prototype': 'def shadow_merge(list1: list[int], list2: list[int]) -> list[int]:',
-        'sujet': 'Créez une fonction qui fusionne deux listes triées en une troisième liste triée.\n'
-                 'Type de retour attendu : list[int]',
-        'exemples': '1. input = [1, 3, 5], [2, 4, 6]\n'
-                    '   output = [1, 2, 3, 4, 5, 6]\n\n'
-                    '2. input = [1, 2, 3], []\n'
-                    '   output = [1, 2, 3]\n\n'
-                    '3. input = [], []\n'
-                    '   output = []',
+        'sujet': 'Fusionne deux listes triées en une troisième liste triée.\nType de retour attendu : list[int]',
+        'exemples': '1. input = [1, 3], [2, 4] -> [1, 2, 3, 4]\n2. input = [], [1] -> [1]',
         'capture_print': False,
         'tests': [
-            # 1. Cas classique (alterné)
-            (([1, 3, 5], [2, 4, 6]), [1, 2, 3, 4, 5, 6]),
-            # 2. Une liste vide (droite)
-            (([1, 2, 3], []), [1, 2, 3]),
-            # 3. Deux listes vides
-            (([], []), []),
-            # 4. Une liste vide (gauche)
-            (([], [4, 5, 6]), [4, 5, 6]),
-            # 5. Listes de tailles différentes
-            (([1, 2], [3, 4, 5, 6]), [1, 2, 3, 4, 5, 6]),
-            # 6. Doublons (très important de vérifier ça)
-            (([1, 5, 5], [2, 5, 6]), [1, 2, 5, 5, 5, 6]),
-            # 7. Nombres négatifs
-            (([-5, 0, 2], [-3, 1]), [-5, -3, 0, 1, 2]),
-            # 8. Une liste entièrement plus petite que l'autre
-            (([1, 2, 3], [10, 11, 12]), [1, 2, 3, 10, 11, 12]),
-            # 9. L'autre liste entièrement plus grande
-            (([20, 30], [1, 2, 3]), [1, 2, 3, 20, 30]),
-            # 10. Listes avec un seul élément
+            (([1, 3, 5], [2, 4, 6]), [1, 2, 3, 4, 5, 6]), (([1, 2, 3], []), [1, 2, 3]),
+            (([], []), []), (([], [4, 5, 6]), [4, 5, 6]), (([1, 2], [3, 4, 5, 6]), [1, 2, 3, 4, 5, 6]),
+            (([1, 5, 5], [2, 5, 6]), [1, 2, 5, 5, 5, 6]), (([-5, 0, 2], [-3, 1]), [-5, -3, 0, 1, 2]),
+            (([1, 2, 3], [10, 11]), [1, 2, 3, 10, 11]), (([20, 30], [1, 2, 3]), [1, 2, 3, 20, 30]),
             (([10], [5]), [5, 10])
         ]
     },
     {
         'nom': 'Is Palindrome',
-        'niveau': 2,
+        'categorie': 'basic', 'niveau': 2,
         'prototype': 'def is_palindrome(s: str) -> bool:',
-        'sujet': 'Écrivez une fonction permettant de déterminer si une chaîne de caractères est un palindrome.\n'
-                 'La comparaison doit être insensible à la casse et ne doit pas tenir compte des espaces.\n'
-                 'Type de retour attendu : bool',
-        'exemples': '1. input = "Kayak"\n'
-                    '   output = True\n\n'
-                    '2. input = "Elu par cette crapule"\n'
-                    '   output = True\n\n'
-                    '3. input = "Bonjour"\n'
-                    '   output = False',
+        'sujet': 'Détermine si une chaîne est un palindrome (insensible à la casse, ignore les espaces).\n',
+        'exemples': '1. "Kayak" -> True\n2. "Elu par cette crapule" -> True\n3. "Bonjour" -> False',
         'capture_print': False,
         'tests': [
-            ("Kayak", True),
-            ("test", False),
-            ("A man a plan a canal Panama", True),
-            ("Elu par cette crapule", True),
-            ("", True),
-            ("a", True),
-            ("ab", False),
-            ("Noon", True),
-            ("Was it a car or a cat I saw", True),
-            ("Python", False)
+            ("Kayak", True), ("test", False), ("A man a plan a canal Panama", True),
+            ("Elu par cette crapule", True), ("", True), ("a", True), ("ab", False),
+            ("Noon", True), ("Was it a car or a cat I saw", True), ("Python", False)
         ]
     },
     {
         'nom': 'Sort Rev Matrix',
-        'niveau': 2,
+        'categorie': 'basic', 'niveau': 2,
         'prototype': 'def sort_rev_matrix(matrix: list[list[int]]) -> list[list[int]]:',
-        'sujet': 'Implémentez une fonction qui trie indépendamment chaque ligne d\'une matrice 2D.\n'
-                 'Le tri doit s\'effectuer par ordre décroissant (valeurs numériques).\n'
-                 'L\'ordre relatif des lignes dans la matrice ne doit pas être modifié.\n'
-                 'Type de retour attendu : list[list[int]]',
-        'exemples': '1. input = [[1, 5, 2], [8, 3]]\n'
-                    '   output = [[5, 2, 1], [8, 3]]\n\n'
-                    '2. input = [[10, 10, 10]]\n'
-                    '   output = [[10, 10, 10]]\n\n'
-                    '3. input = [[-5, 0, 5]]\n'
-                    '   output = [[5, 0, -5]]',
+        'sujet': 'Trie indépendamment chaque ligne d\'une matrice par ordre décroissant.\n',
+        'exemples': '1. [[1, 5, 2], [8, 3]] -> [[5, 2, 1], [8, 3]]\n',
         'capture_print': False,
         'tests': [
-            ([[1, 5, 2], [8, 3]], [[5, 2, 1], [8, 3]]),
-            ([[1, 2, 3]], [[3, 2, 1]]),
-            ([[-5, -1, -10]], [[-1, -5, -10]]),
-            ([], []),
-            ([[10, 2, 30], [5, 5, 5]], [[30, 10, 2], [5, 5, 5]]),
-            ([[1]], [[1]]),
-            ([[1, 3], [2, 4]], [[3, 1], [4, 2]]),
-            ([[0], [0, 1]], [[0], [1, 0]]),
-            ([[100, 1, 50]], [[100, 50, 1]]),
-            ([[-1, -2, -3]], [[-1, -2, -3]])
+            ([[1, 5, 2], [8, 3]], [[5, 2, 1], [8, 3]]), ([[1, 2, 3]], [[3, 2, 1]]),
+            ([[-5, -1, -10]], [[-1, -5, -10]]), ([], []), ([[10, 2, 30], [5, 5, 5]], [[30, 10, 2], [5, 5, 5]]),
+            ([[1]], [[1]]), ([[1, 3], [2, 4]], [[3, 1], [4, 2]]), ([[0], [0, 1]], [[0], [1, 0]]),
+            ([[100, 1, 50]], [[100, 50, 1]]), ([[-1, -2, -3]], [[-1, -2, -3]])
         ]
     },
-
-    # === NIVEAU 3 ===
     {
         'nom': 'Twist shake',
-        'niveau': 3,
+        'categorie': 'basic', 'niveau': 3,
         'prototype': 'def twist_shake(arr: list[int], k: int) -> list[int]:',
-        'sujet': 'Déplacez les k derniers éléments de la liste vers le début de celle-ci.\n'
-                 'La liste d\'origine ne doit pas être modifiée.\n'
-                 'Seules des listes d\'entiers valides sont données en arguments.\n'
-                 'Type de retour attendu : list[int]',
-        'exemples': '1. input = [0, 1, 2, 3, 4, 5], k=2\n'
-                    '   output = [4, 5, 0, 1, 2, 3]\n\n'
-                    '2. input = [1, 2, 3], k=4\n'
-                    '   output = [3, 1, 2]\n\n'
-                    '3. input = [10, 20], k=1\n'
-                    '   output = [20, 10]',
+        'sujet': 'Déplacez les k derniers éléments de la liste vers le début de celle-ci.\n',
+        'exemples': '1. input = [0, 1, 2, 3, 4], k=2 -> [3, 4, 0, 1, 2]\n',
         'capture_print': False,
         'tests': [
-            (([0, 1, 2, 3, 4, 5], 2), [4, 5, 0, 1, 2, 3]),
-            (([1, 2, 3, 4], 10), [3, 4, 1, 2]),
-            (([], 5), []),
-            (([1, 2, 3], 3), [1, 2, 3]),
-            (([1, 2, 3, 4, 5], 7), [4, 5, 1, 2, 3]),
-            (([1, 2, 3], 0), [1, 2, 3]),
-            (([1], 10), [1]),
-            (([1, 2], 1), [2, 1]),
-            (([10, 20, 30], 2), [20, 30, 10]),
-            (([-10, -20, -30], 1), [-30, -10, -20])
+            (([0, 1, 2, 3, 4, 5], 2), [4, 5, 0, 1, 2, 3]), (([1, 2, 3, 4], 10), [3, 4, 1, 2]),
+            (([], 5), []), (([1, 2, 3], 3), [1, 2, 3]), (([1, 2, 3, 4, 5], 7), [4, 5, 1, 2, 3]),
+            (([1, 2, 3], 0), [1, 2, 3]), (([1], 10), [1]), (([1, 2], 1), [2, 1]),
+            (([10, 20, 30], 2), [20, 30, 10]), (([-10, -20, -30], 1), [-30, -10, -20])
         ]
     },
     {
         'nom': 'Rot 13',
-        'niveau': 3,
+        'categorie': 'basic', 'niveau': 3,
         'prototype': 'def rot13(txt: str) -> str:',
-        'sujet': 'Reproduisez l\'algorithme de chiffrement par substitution ROT13.\n'
-                 'Chaque lettre alphabétique doit être décalée de 13 positions.\n'
-                 'La casse doit être préservée et les caractères spéciaux ignorés.\n'
-                 'Type de retour attendu : str',
-        'exemples': '1. input = "abc"\n'
-                    '   output = "nop"\n\n'
-                    '2. input = "Hello World!"\n'
-                    '   output = "Uryyb Jbeyq!"\n\n'
-                    '3. input = "12345"\n'
-                    '   output = "12345"',
+        'sujet': 'Algorithme de chiffrement par substitution ROT13.\n',
+        'exemples': '1. "abc" -> "nop"\n2. "Hello" -> "Uryyb"',
         'capture_print': False,
         'tests': [
-            ("abc", "nop"),
-            ("nop", "abc"),
-            ("Hello World!", "Uryyb Jbeyq!"),
-            ("Python 3.10", "Clguba 3.10"),
-            ("", ""),
-            ("1234567890", "1234567890"),
-            ("M", "Z"),
-            ("N", "A"),
-            ("z", "m"),
-            ("a", "n")
+            ("abc", "nop"), ("nop", "abc"), ("Hello World!", "Uryyb Jbeyq!"),
+            ("Python 3.10", "Clguba 3.10"), ("", ""), ("1234567890", "1234567890"),
+            ("M", "Z"), ("N", "A"), ("z", "m"), ("a", "n")
         ]
     },
     {
         'nom': 'Transpose Matrix',
-        'niveau': 3,
+        'categorie': 'basic', 'niveau': 3,
         'prototype': 'def transpose_matrix(matrix: list[list[int]]) -> list[list[int]]:',
-        'sujet': 'Calculez et retournez la transposée de la matrice fournie en entrée.\n'
-                 'L\'opération consiste à échanger les lignes et les colonnes.\n'
-                 'Type de retour attendu : list[list[int]]',
-        'exemples': '1. input = [[1, 2, 3], [4, 5, 6]]\n'
-                    '   output = [[1, 4], [2, 5], [3, 6]]\n\n'
-                    '2. input = [[1], [2], [3]]\n'
-                    '   output = [[1, 2, 3]]\n\n'
-                    '3. input = []\n'
-                    '   output = []',
+        'sujet': 'Calculez et retournez la transposée de la matrice.\n',
+        'exemples': '1. [[1, 2], [3, 4]] -> [[1, 3], [2, 4]]\n',
         'capture_print': False,
         'tests': [
-            ([[1, 2, 3], [4, 5, 6]], [[1, 4], [2, 5], [3, 6]]),
-            ([[1, 2], [3, 4]], [[1, 3], [2, 4]]),
-            ([[1], [2], [3]], [[1, 2, 3]]),
-            ([], []),
-            ([[1]], [[1]]),
-            ([[1, 2, 3]], [[1], [2], [3]]),
-            ([[1, 2], [3, 4], [5, 6]], [[1, 3, 5], [2, 4, 6]]),
-            ([[0, 0], [1, 1]], [[0, 1], [0, 1]]),
-            ([[10, 20], [30, 40]], [[10, 30], [20, 40]]),
+            ([[1, 2, 3], [4, 5, 6]], [[1, 4], [2, 5], [3, 6]]), ([[1, 2], [3, 4]], [[1, 3], [2, 4]]),
+            ([[1], [2], [3]], [[1, 2, 3]]), ([], []), ([[1]], [[1]]),
+            ([[1, 2, 3]], [[1], [2], [3]]), ([[1, 2], [3, 4], [5, 6]], [[1, 3, 5], [2, 4, 6]]),
+            ([[0, 0], [1, 1]], [[0, 1], [0, 1]]), ([[10, 20], [30, 40]], [[10, 30], [20, 40]]),
             ([[-1]], [[-1]])
         ]
     },
-
-    # === NIVEAU 4 ===
     {
         'nom': 'Cryptic Sort',
-        'niveau': 4,
+        'categorie': 'basic', 'niveau': 4,
         'prototype': 'def cryptic_sort(strings: list[str]) -> list[str]:',
-        'sujet': 'Triez une liste de chaînes de caractères en appliquant successivement les critères suivants :\n'
-                 '1. La longueur de la chaîne (croissant).\n'
-                 '2. L\'ordre alphabétique standard insensible a la casse (croissant).\n'
-                 '3. Le nombre de voyelles présentes (croissant).\n'
-                 'Type de retour attendu : list[str]',
-        'exemples': '1. input = ["aa", "bz"]\n'
-                    '   output = ["aa", "bz"]\n\n'
-                    '2. input = ["ccc", "bb", "a"]\n'
-                    '   output = ["a", "bb", "ccc"]\n\n'
-                    '3. input = ["chat", "char"]\n'
-                    '   output = ["char", "chat"]',
+        'sujet': 'Triez une liste de chaînes : 1. Longueur, 2. Ordre alphabétique, 3. Nombre de voyelles.\n',
+        'exemples': '1. ["ccc", "bb", "a"] -> ["a", "bb", "ccc"]\n',
         'capture_print': False,
         'tests': [
-            (["ccc", "bb", "a"], ["a", "bb", "ccc"]),
-            (["chat", "char"], ["char", "chat"]),
-            (["banane", "pomme", "kiwi", "sac", "arc", "a", ""], 
-             ["", "a", "arc", "sac", "kiwi", "pomme", "banane"]),
-            ([], []),
-            (["aa", "bz"], ["aa", "bz"]),
-            (["Zebra", "apple", "Banana"], ["apple", "Zebra", "Banana"]),
-            (["b", "a"], ["a", "b"]),
-            (["E", "b"], ["b", "E"]),
-            (["@#$!BB*&^%", "@#$!aa*&^%", "@#$!bb*&^%", "@#$!AA*&^%"], 
-             ["@#$!aa*&^%", "@#$!AA*&^%", "@#$!BB*&^%", "@#$!bb*&^%"]),
+            (["ccc", "bb", "a"], ["a", "bb", "ccc"]), (["chat", "char"], ["char", "chat"]),
+            (["banane", "pomme", "kiwi", "sac", "arc", "a", ""], ["", "a", "arc", "sac", "kiwi", "pomme", "banane"]),
+            ([], []), (["aa", "bz"], ["aa", "bz"]), (["Zebra", "apple", "Banana"], ["apple", "Zebra", "Banana"]),
+            (["b", "a"], ["a", "b"]), (["E", "b"], ["b", "E"]),
+            (["@#$!BB*&^%", "@#$!aa*&^%", "@#$!bb*&^%", "@#$!AA*&^%"], ["@#$!aa*&^%", "@#$!AA*&^%", "@#$!BB*&^%", "@#$!bb*&^%"]),
             (["aaaa", "bb"], ["bb", "aaaa"])
         ]
     },
     {
         'nom': 'Custom Sort',
-        'niveau': 4,
+        'categorie': 'basic', 'niveau': 4,
         'prototype': 'def custom_sort(words: list[str]) -> list[str]:',
-        'sujet': 'Ordonnez la liste des mots fournie selon une logique spécifique :\n'
-                 '1. Par longueur de mot croissante.\n'
-                 '2. Par ordre alphabétique insensible à la casse.\n'
-                 '3. En cas d\'égalité parfaite, le mot débutant par une majuscule est prioritaire.\n'
-                 'Type de retour attendu : list[str]',
-        'exemples': '1. input = ["b", "A", "a", "B"]\n'
-                    '   output = ["A", "a", "B", "b"]\n\n'
-                    '2. input = ["Zoo", "abeille"]\n'
-                    '   output = ["Zoo", "abeille"]\n\n'
-                    '3. input = ["test", "Test"]\n'
-                    '   output = ["Test", "test"]',
+        'sujet': 'Trie : 1. Longueur, 2. Alphabétique, 3. Majuscule prioritaire en cas d\'égalité.\n',
+        'exemples': '1. ["b", "A", "a", "B"] -> ["A", "a", "B", "b"]\n',
         'capture_print': False,
         'tests': [
-            (["b", "A", "a", "B"], ["A", "a", "B", "b"]),
-            (["aa", "Ab", "ac"], ["aa", "Ab", "ac"]),
-            (["Zoo", "abeille"], ["Zoo", "abeille"]),
-            (["", "a"], ["", "a"]),
-            (["c", "C"], ["C", "c"]),
-            (["beta", "Alpha"], ["beta", "Alpha"]),
-            (["A", "B", "C"], ["A", "B", "C"]),
-            (["a", "b", "c"], ["a", "b", "c"]),
-            (["Z", "z", "a"], ["a", "Z", "z"]),
-            (["Test", "test"], ["Test", "test"])
+            (["b", "A", "a", "B"], ["A", "a", "B", "b"]), (["aa", "Ab", "ac"], ["aa", "Ab", "ac"]),
+            (["Zoo", "abeille"], ["Zoo", "abeille"]), (["", "a"], ["", "a"]),
+            (["c", "C"], ["C", "c"]), (["beta", "Alpha"], ["beta", "Alpha"]),
+            (["A", "B", "C"], ["A", "B", "C"]), (["a", "b", "c"], ["a", "b", "c"]),
+            (["Z", "z", "a"], ["a", "Z", "z"]), (["Test", "test"], ["Test", "test"])
+        ]
+    },
+
+    # ==================================
+    # === CATEGORIE : PYTHON MEDIUM  ===
+    # ==================================
+    {
+        'nom': 'Palindrome partitioning',
+        'categorie': 'medium', 'niveau': 2,
+        'prototype': 'def palindrome_partitioning(s: str) -> int:',
+        'sujet': 'Calculez le nombre minimum de coupes nécessaires pour partitionner\n'
+                 'une chaîne de caractères de sorte que chaque sous-chaîne soit un palindrome.\n'
+                 'Une lettre seule est considérée comme un palindrome.\n'
+                 'Type de retour attendu : int',
+        'exemples': '1. input = "aab"\n   output = 1\n\n'
+                    '2. input = "racecar"\n   output = 0\n\n'
+                    '3. input = "ab"\n   output = 1',
+        'capture_print': False,
+        'tests': [
+            ("aab", 1), ("racecar", 0), ("ab", 1), ("banana", 1),
+            ("abcde", 4), ("aaaa", 0), ("aabbc", 2), ("abacbc", 1),
+            ("x madamy", 3), ("", 0)
+        ]
+    },
+    {
+        'nom': 'Is Rotation',
+        'categorie': 'medium', 'niveau': 1,
+        'prototype': 'def is_rotation(arr1: list[int], arr2: list[int]) -> bool:',
+        'sujet': 'Déterminez si la liste arr2 est une rotation valide de la liste arr1.\n'
+                 'Une rotation implique de décaler les éléments vers la gauche ou la droite,\n'
+                 'et les éléments qui sortent d\'un côté réapparaissent de l\'autre.\n'
+                 'Type de retour attendu : bool',
+        'exemples': '1. input = [1, 2, 3, 4, 5], [5, 1, 2, 3, 4]\n'
+                    '   output = True\n\n'
+                    '2. input = [1, 2, 3, 4, 5], [2, 3, 4, 5, 6]\n'
+                    '   output = False\n\n'
+                    '3. input = [], []\n'
+                    '   output = True',
+        'capture_print': False,
+        'tests': [
+            (([1, 2, 3, 4, 5], [5, 1, 2, 3, 4]), True),
+            (([1, 2, 3, 4, 5], [2, 3, 4, 5, 1]), True),
+            (([1, 2, 3, 4, 5], [1, 2, 3, 4, 5]), True),
+            (([1, 2, 3, 4, 5], [2, 3, 4, 5, 6]), False),
+            (([], []), True),
+            (([1, 2], [1, 2, 3]), False), # Tailles différentes (Edge case)
+            (([1, 1, 2, 1], [1, 2, 1, 1]), True), # Avec des doublons
+            (([1, 2, 3, 4, 5, 6, 7, 8], [4, 5, 6, 7, 8, 1, 2, 3]), True),
+            (([1, 2, 3, 4], [4, 3, 2, 1]), False), # Liste inversée, pas tournante
+            (([7, 7, 7, 7, 7], [7, 7, 7, 7, 7]), True) # Nombres identiques
+        ]
+    },
+    {
+        'nom': 'Max Sliding Window',
+        'categorie': 'medium', 'niveau': 1,
+        'prototype': 'def max_sliding_window(nums: list[int], k: int) -> list[int]:',
+        'sujet': 'Étant donné un tableau d\'entiers `nums` et une fenêtre glissante de taille `k`,\n'
+                 'qui se déplace de l\'extrême gauche vers l\'extrême droite d\'une position à la fois.\n'
+                 'Vous ne pouvez voir que les `k` nombres dans la fenêtre à chaque étape.\n'
+                 'Retournez un tableau contenant le chiffre maximum de chaque fenêtre.\n'
+                 'Type de retour attendu : list[int]',
+        'exemples': '1. input = [1, 3, -1, -3, 5, 3, 6, 7], k = 3\n'
+                    '   output = [3, 3, 5, 5, 6, 7]\n\n'
+                    '2. input = [1], k = 1\n'
+                    '   output = [1]\n\n'
+                    '3. input = [4, -2], k = 2\n'
+                    '   output = [4]',
+        'capture_print': False,
+        'tests': [
+            (([1, 3, -1, -3, 5, 3, 6, 7], 3), [3, 3, 5, 5, 6, 7]),
+            (([1], 1), [1]),
+            (([1, -1], 1), [1, -1]),
+            (([9, 11], 2), [11]),
+            (([4, -2], 2), [4]),
+            (([1, 2, 3, 4, 5], 5), [5]), # k équivalent à la taille de la liste (Edge case)
+            (([5, 4, 3, 2, 1], 2), [5, 4, 3, 2]), # Tableau strictement décroissant
+            (([1, 2, 3, 4, 5], 2), [2, 3, 4, 5]), # Tableau strictement croissant
+            (([], 0), []), # Tableau vide (Edge case)
+            (([8, 3, -1, -3, 5, 3, 6, 7, 9, 2, 4, 1, 5], 4), [8, 5, 5, 5, 6, 7, 9, 9, 9, 5]) # Cas complexe plus long
+        ]
+    },
+    {
+        'nom': 'Merge Sorted List',
+        'categorie': 'medium', 'niveau': 3,
+        'prototype': 'def merge_sorted_list(lists: list[list[int]]) -> list[int]:',
+        'sujet': 'Fusionnez plusieurs listes d\'entiers en une seule liste finale triée par ordre croissant.\n'
+                 'Type de retour attendu : list[int]',
+        'exemples': '1. input = [[1, 4, 5], [1, 3, 4], [2, 6]]\n'
+                    '   output = [1, 1, 2, 3, 4, 4, 5, 6]\n\n'
+                    '2. input = []\n'
+                    '   output = []\n\n'
+                    '3. input = [[], [1]]\n'
+                    '   output = [1]',
+        'capture_print': False,
+        'tests': [
+            ([[1, 4, 5], [1, 3, 4], [2, 6]], [1, 1, 2, 3, 4, 4, 5, 6]),
+            ([], []),
+            ([[], [], []], []),
+            ([[1, 2, 3]], [1, 2, 3]),
+            ([[-5, 0], [-2, 3], [1]], [-5, -2, 0, 1, 3]),
+            ([[10, 20], [5, 15], [1, 2]], [1, 2, 5, 10, 15, 20]),
+            ([[1, 1, 1], [1, 1]], [1, 1, 1, 1, 1]),
+            ([[], [5], []], [5]),
+            ([[100]], [100]),
+            ([[1, 10, 20], [2, 9, 21], [3, 8, 22], [4, 7, 23], [5, 6, 24]], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 21, 22, 23, 24]) # Cas complexe
+        ]
+    },
+    {
+        'nom': 'List Intersection Ordered',
+        'categorie': 'medium', 'niveau': 2,
+        'prototype': 'def list_intersection_finder_ordered(lists: list[list[int]]) -> list[int]:',
+        'sujet': 'Trouvez l\'intersection de plusieurs listes d\'entiers.\n'
+                 'Le résultat doit conserver l\'ordre d\'apparition des éléments de la première liste.\n'
+                 'Si un élément apparaît plusieurs fois dans la première liste et fait partie de l\'intersection,\n'
+                 'ses occurrences doivent être conservées.\n'
+                 'Type de retour attendu : list[int]',
+        'exemples': '1. input = [[1, 2, 3, 4], [2, 4, 6], [2, 4, 8]]\n'
+                    '   output = [2, 4]\n\n'
+                    '2. input = [[1, 1, 2], [1, 2], [1, 2, 3]]\n'
+                    '   output = [1, 1, 2]\n\n'
+                    '3. input = [[1, 2], [3, 4]]\n'
+                    '   output = []',
+        'capture_print': False,
+        'tests': [
+            ([[1, 2, 3, 4], [2, 4, 6], [2, 4, 8]], [2, 4]),
+            ([[1, 1, 2], [1, 2], [1, 2, 3]], [1, 1, 2]),
+            ([[1, 2], [3, 4]], []),
+            ([], []),
+            ([[1, 2, 3]], [1, 2, 3]),
+            ([[5, 4, 3, 2, 1], [1, 2, 3], [3, 1, 5]], [3, 1]),
+            ([[10, 20, 30], [], [10, 20]], []),
+            ([[0, 0, 0], [0]], [0, 0, 0]),
+            ([[-1, -2, -3], [-3, -2, -1], [-2, -1]], [-1, -2]),
+            ([[5, 9, 2, 9, 1, 4], [9, 5, 2, 4, 7], [2, 9, 4, 5, 8], [9, 9, 9, 5, 2, 4]], [5, 9, 2, 9, 4]) # Cas complexe
+        ]
+    },
+    {
+        'nom': 'Constellation Mapper',
+        'categorie': 'medium', 'niveau': 1,
+        'prototype': 'def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:',
+        'sujet': 'Générez une grille carrée de taille `size` x `size` sous forme de liste de chaînes.\n'
+                 'Les espaces vides sont représentés par des points `.` et les étoiles par des `*`.\n'
+                 'Les étoiles sont fournies sous la forme de tuples de coordonnées (ligne, colonne).\n'
+                 'Type de retour attendu : list[str]',
+        'exemples': '1. stars = [(0, 0), (1, 1)], size = 2\n'
+                    '   output = ["*.", ".*"]\n\n'
+                    '2. stars = [(0, 2)], size = 3\n'
+                    '   output = ["..*", "...", "..."]\n\n'
+                    '3. stars = [], size = 1\n'
+                    '   output = ["."]',
+        'capture_print': False,
+        'tests': [
+            (([(0, 0), (1, 1)], 2), ["*.", ".*"]),
+            (([(0, 2)], 3), ["..*", "...", "..."]),
+            (([], 1), ["."]),
+            (([(0, 0), (0, 1), (0, 2)], 3), ["***", "...", "..."]),
+            (([(2, 2)], 3), ["...", "...", "..*"]),
+            (([(0, 0), (1, 3), (2, 2), (4, 4)], 5), ["*....", "...*.", "..*..", ".....", "....*"]),
+            (([], 0), []),
+            (([(1, 1), (1, 1)], 3), ["...", ".*.", "..."]), # Étoiles superposées
+            (([(i, i) for i in range(4)], 4), ["*...", ".*..", "..*.", "...*"]),
+            (([(0,9), (1,8), (2,7), (3,6), (4,5), (5,4), (6,3), (7,2), (8,1), (9,0)], 10), 
+             [".........*", "........*.", ".......*..", "......*...", ".....*....", "....*.....", "...*......", "..*.......", ".*........", "*........."]) # Diagonale inverse complexe
+        ]
+    },
+    {
+        'nom': 'Packages Dependencies',
+        'categorie': 'medium', 'niveau': 3,
+        'prototype': 'def packages_dependencies(packages: list[tuple[str, list[str]]]) -> list[str]:',
+        'sujet': 'Déterminez l\'ordre d\'installation de paquets pour respecter leurs dépendances.\n'
+                 'Vous recevez une liste de tuples : (nom_du_paquet, [dependances_requises]).\n'
+                 'Un paquet ne peut être installé que si toutes ses dépendances sont déjà installées.\n'
+                 'S\'il y a un cycle ou des dépendances introuvables, ignorez les paquets impossibles à résoudre.\n'
+                 'En cas d\'égalité (plusieurs paquets prêts en même temps), respectez l\'ordre d\'apparition initial des paquets dans la liste.\n'
+                 'Type de retour attendu : list[str]',
+        'exemples': '1. input = [("A", []), ("B", ["A"])]\n'
+                    '   output = ["A", "B"]\n\n'
+                    '2. input = [("A", ["B"]), ("B", ["C"]), ("C", [])]\n'
+                    '   output = ["C", "B", "A"]\n\n'
+                    '3. input = [("A", ["B"]), ("B", ["A"])]\n'
+                    '   output = []',
+        'capture_print': False,
+        'tests': [
+            ([("A", []), ("B", ["A"])], ["A", "B"]),
+            ([("A", ["B"]), ("B", ["C"]), ("C", [])], ["C", "B", "A"]),
+            ([("A", ["B"]), ("B", ["A"])], []), # Cycle complet
+            ([], []),
+            ([("A", ["C"]), ("B", ["C"]), ("C", [])], ["C", "A", "B"]),
+            ([("X", ["Y", "Z"]), ("Y", ["Z"]), ("Z", [])], ["Z", "Y", "X"]),
+            ([("A", ["D"]), ("B", ["D"]), ("C", ["D"])], []), # Dépendance "D" manquante
+            ([("A", []), ("B", []), ("C", [])], ["A", "B", "C"]),
+            ([("Flask", ["Werkzeug", "Jinja2"]), ("Werkzeug", []), ("Jinja2", ["MarkupSafe"]), ("MarkupSafe", [])], 
+             ["Werkzeug", "MarkupSafe", "Jinja2", "Flask"]),
+            # Cas complexe avec arbre asymétrique et résolution multi-passes
+            ([("App", ["Auth", "DB", "UI"]), ("UI", ["React"]), ("Auth", ["DB", "Crypto"]), ("DB", ["FS"]), ("Crypto", []), ("React", []), ("FS", [])], 
+             ["Crypto", "React", "FS", "UI", "DB", "Auth", "App"])
+        ]
+    }
+
+    # =======================================
+    # === CATEGORIE : PYTHON CHALLENGING  ===
+    # =======================================
+    {
+        'nom': 'Run-Length Encoding',
+        'categorie': 'challenging', 'niveau': 1,
+        'prototype': 'def run_length_encoding(s: str) -> str:',
+        'sujet': 'Réalisez la compression par encodage de longueur de plage (RLE) de la chaîne.\n'
+                 'Remplacez chaque séquence de caractères identiques consécutifs par le nombre '
+                 'd\'occurrences suivi du caractère lui-même.\n'
+                 'Si la chaîne d\'entrée est vide, retournez une chaîne vide.',
+        'exemples': '1. input = "aabbc"\n   output = "2a2b1c"\n\n'
+                    '2. input = "a"\n   output = "1a"\n\n'
+                    '3. input = ""\n   output = ""',
+        'capture_print': False,
+        'tests': [
+            ("aabbc", "2a2b1c"),
+            ("", ""),
+            ("a", "1a"),
+            ("abc", "1a1b1c"),
+            ("AAAAA", "5A"),
+            ("aAaA", "1a1A1a1A"),
+            ("11223", "212213"),
+            ("  ", "2 "),
+            ("!!!!!!!!!!", "10!"),
+            ("aaabbbbcccddeeeefff", "3a4b3c2d4e3f") # Cas complexe
+        ]
+    },
+    {
+        'nom': 'Max Intervals',
+        'categorie': 'challenging', 'niveau': 2,
+        'prototype': 'def max_intervals(intervals: list[tuple[int, int]]) -> int:',
+        'sujet': 'Déterminez le cardinal maximal d\'un sous-ensemble d\'intervalles mutuellement compatibles.\n'
+                 'Chaque intervalle est un tuple (début, fin). Si deux intervalles se touchent '
+                 'à la frontière (ex: fin à 5 et début à 5), ils sont compatibles.\n'
+                 'Type de retour attendu : int',
+        'exemples': '1. input = [(1, 3), (2, 4), (3, 5)]\n   output = 2\n\n'
+                    '2. input = []\n   output = 0\n\n'
+                    '3. input = [(1, 2)]\n   output = 1',
+        'capture_print': False,
+        'tests': [
+            ([(1, 3), (2, 4), (3, 5)], 2),
+            ([], 0),
+            ([(1, 2)], 1),
+            ([(1, 2), (2, 3), (3, 4)], 3), # Intervalles collés
+            ([(1, 5), (2, 3), (3, 4)], 2),
+            ([(1, 10), (2, 6), (7, 11), (3, 4), (5, 6), (7, 8)], 4),
+            ([(0, 1), (0, 1), (0, 1)], 1), # Duplicatas complets
+            ([(10, 20), (1, 10)], 2),      # Désordonnés
+            ([(5, 10), (1, 5), (10, 15)], 3),
+            ([(0, 2), (1, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9), (8, 10), (9, 11)], 5) # Complexe
+        ]
+    },
+    {
+        'nom': 'Detect Cycle',
+        'categorie': 'challenging', 'niveau': 2,
+        'prototype': 'def detect_cycle(graph: dict[str, list[str]]) -> bool:',
+        'sujet': 'Détectez la présence d\'au moins un cycle au sein d\'un graphe orienté '
+                 'représenté par un dictionnaire (liste d\'adjacence).\n'
+                 'Type de retour attendu : bool',
+        'exemples': '1. input = {"A": ["B"], "B": ["C"], "C": ["A"]}\n   output = True\n\n'
+                    '2. input = {"A": ["B"], "B": ["C"], "C": []}\n   output = False\n\n'
+                    '3. input = {}\n   output = False',
+        'capture_print': False,
+        'tests': [
+            ({"A": ["B"], "B": ["C"], "C": ["A"]}, True),
+            ({"A": ["B"], "B": ["C"], "C": []}, False),
+            ({}, False),
+            ({"A": ["A"]}, True), # Self-loop
+            ({"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}, False), # Graph en diamant (pas de cycle)
+            ({"A": ["B"], "B": ["C"], "C": ["D"], "D": ["E"], "E": ["C"]}, True),
+            ({"1": ["2"], "2": ["3"], "3": [], "4": ["5"], "5": ["4"]}, True), # Graphe non connexe avec cycle
+            ({"A": []}, False),
+            ({"A": ["B"], "B": ["A"]}, True),
+            ({"A": ["B", "C"], "B": ["C", "D"], "C": ["E"], "D": ["F"], "E": ["F", "G"], "F": ["H"], "G": ["H"], "H": []}, False) # Complexe acyclique
+        ]
+    },
+    {
+        'nom': 'Find Shortest Path',
+        'categorie': 'challenging', 'niveau': 3,
+        'prototype': 'def find_shortest_path(grid: list[list[int]], start: tuple[int, int], end: tuple[int, int]) -> int:',
+        'sujet': 'Déterminez le nombre minimal de transitions pour aller de `start` à `end` '
+                 'dans une grille (0 = libre, 1 = mur). Mouvements sur les 4 axes cardinaux.\n'
+                 'Retournez -1 si aucun chemin n\'est possible.\n'
+                 'Type de retour attendu : int',
+        'exemples': '1. grid=[[0, 0], [0, 0]], start=(0,0), end=(1,1)\n   output = 2\n\n'
+                    '2. grid=[[0, 1], [1, 0]], start=(0,0), end=(1,1)\n   output = -1\n\n'
+                    '3. grid=[[0]], start=(0,0), end=(0,0)\n   output = 0',
+        'capture_print': False,
+        'tests': [
+            (([[0, 0], [0, 0]], (0,0), (1,1)), 2),
+            (([[0, 1], [0, 0]], (0,0), (1,1)), 2),
+            (([[0, 1, 0], [0, 1, 0], [0, 0, 0]], (0,0), (0,2)), 6),
+            (([[0, 1], [1, 0]], (0,0), (1,1)), -1), # Bloqué
+            (([[0]], (0,0), (0,0)), 0), # Sur place
+            (([[1]], (0,0), (0,0)), -1), # Départ dans un mur
+            (([], (0,0), (1,1)), -1), # Grille vide
+            (([[0, 0, 0], [1, 1, 0], [0, 0, 0]], (0,0), (2,0)), 6),
+            (([[0, 0, 0, 0, 0]], (0,0), (0,4)), 4), # Ligne droite
+            (
+                (
+                    [
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
+                    ], 
+                    (0, 0), # Départ en haut à gauche
+                    (9, 9)  # Arrivée en bas à droite
+                ), 
+                54 # Résultat attendu
+            )
+        ]
+    },
+    {
+        'nom': 'Maximal Square',
+        'categorie': 'challenging', 'niveau': 3,
+        'prototype': 'def maximal_square(matrix: list[list[str]]) -> int:',
+        'sujet': 'Identifiez la taille du côté du plus grand carré composé exclusivement '
+                 'd\'espaces vides `.` dans une matrice 2D (les `o` sont des murs).\n'
+                 'Type de retour attendu : int',
+        'exemples': "1. input = [['.', '.', '.'], ['.', '.', '.'], ['.', '.', '.']]\n   output = 3\n\n"
+                    "2. input = [['o', 'o'], ['o', 'o']]\n   output = 0\n\n"
+                    "3. input = [['.', 'o'], ['o', '.']]\n   output = 1",
+        'capture_print': False,
+        'tests': [
+            ([['.', '.', '.'], ['.', '.', '.'], ['.', '.', '.']], 3),
+            ([['o', 'o'], ['o', 'o']], 0),
+            ([['.', 'o'], ['o', '.']], 1),
+            ([['.', '.', 'o'], ['.', '.', 'o'], ['o', 'o', 'o']], 2),
+            ([['.']], 1),
+            ([['o']], 0),
+            ([], 0),
+            ([['.', 'o', '.', '.', '.'], ['.', 'o', '.', '.', '.'], ['.', 'o', '.', '.', '.'], ['.', 'o', 'o', 'o', 'o']], 3),
+            ([['.'] * 10], 1), # Ligne simple
+            ([['.','.','.','.','o'],['.','.','.','.','.'],['.','.','.','.','.'],['.','.','.','.','.'],['o','.','.','.','o']], 4) # Complexe
         ]
     }
 ]
 
 def main():
-    # Organisation des exercices par niveau
+    print_header()
+    print("Bienvenue dans le simulateur d'examen 42.")
+    print("Sélectionne ton parcours :")
+    print(f" {YELLOW}1{RESET} : Python basic")
+    print(f" {YELLOW}2{RESET} : Python medium")
+    print(f" {YELLOW}3{RESET} : Python challenging")
+    print(f" {YELLOW}4{RESET} : Python in-depth")
+    
+    choix = input(f"\nTon choix (1-4) : {RESET}").strip()
+    
+    # Mapping des choix avec les catégories
+    map_categories = {
+        '1': 'basic',
+        '2': 'medium',
+        '3': 'challenging',
+        '4': 'in-depth'
+    }
+    
+    categorie_choisie = map_categories.get(choix)
+    
+    if not categorie_choisie:
+        print(f"{RED}Choix invalide. Arrêt du programme.{RESET}")
+        sys.exit()
+        
+    if categorie_choisie == 'in-depth':
+        print(f"\n{CYAN}La catégorie 'Python in-depth' est en cours de construction. À bientôt !{RESET}")
+        sys.exit()
+
+    # Filtrage des exercices selon la catégorie
+    exos_filtres = [ex for ex in EXERCICES if ex.get('categorie') == categorie_choisie]
+    
+    if not exos_filtres:
+        print(f"{RED}Aucun exercice trouvé pour cette catégorie.{RESET}")
+        sys.exit()
+
+    # Organisation des exercices filtrés par niveau
     levels = {}
-    for ex in EXERCICES:
+    for ex in exos_filtres:
         lvl = ex.get('niveau', 1)
         if lvl not in levels:
             levels[lvl] = []
         levels[lvl].append(ex)
 
-    print_header()
-    print("Bienvenue dans le simulateur d'examen 42.")
-    print("Un exercice sera tiré au sort pour chaque niveau (1 à 4).")
-    input(f"{YELLOW}Appuie sur Entrée pour commencer...{RESET}")
+    print(f"\nParcours sélectionné : {BOLD}{categorie_choisie.upper()}{RESET}")
+    input(f"{YELLOW}Appuie sur Entrée pour commencer l'examen...{RESET}")
 
-    # Boucle sur les niveaux 1 à 4
-    for niv in range(1, 5):
-        if niv not in levels or not levels[niv]:
-            continue
-
+    # Boucle sur les niveaux dynamiques (basés sur les niveaux présents dans la catégorie)
+    niveaux_presents = sorted(levels.keys())
+    
+    for niv in niveaux_presents:
         print(f"\n{CYAN}{'='*20} PASSAGE AU NIVEAU {niv} {'='*20}{RESET}")
 
         # 1. On récupère les exercices du niveau et on les mélange
@@ -541,7 +748,6 @@ def main():
         exo = exos_courants[index_exo]
 
         while True:
-            
             # Lancement du test
             result = run_tests(exo)
             
@@ -556,8 +762,13 @@ def main():
                 # Le modulo permet de revenir à 0 si on dépasse la fin de la liste
                 index_exo = (index_exo + 1) % len(exos_courants)
                 exo = exos_courants[index_exo]
-                continue 
-                
+                continue
+
+            elif result == "up":
+                print(f"\n{YELLOW}>>> Skip ! Passage forcé au niveau suivant...{RESET}")
+                time.sleep(1)
+                break  # On casse la boucle while, ce qui lance le niveau suivant
+
             elif result is True:
                 # Exercice validé
                 print(f"{GREEN}>>> Niveau {niv} validé ! Passage au suivant.{RESET}")
@@ -570,7 +781,7 @@ def main():
                 input(f"{YELLOW}Appuie sur Entrée...{RESET}")
                 pass
 
-    print(f"\n{GREEN}{'='*50}\nBRAVO ! TU AS FINI L'EXAMEN COMPLET (NIV 1->4) !\n{'='*50}{RESET}")
+    print(f"\n{GREEN}{'='*50}\nBRAVO ! TU AS FINI L'EXAMEN {categorie_choisie.upper()} !\n{'='*50}{RESET}")
 
 if __name__ == "__main__":
     main()
