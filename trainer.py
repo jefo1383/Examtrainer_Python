@@ -419,7 +419,7 @@ EXERCICES = [
             (([5, 4, 3, 2, 1], 2), [5, 4, 3, 2]), # Tableau strictement décroissant
             (([1, 2, 3, 4, 5], 2), [2, 3, 4, 5]), # Tableau strictement croissant
             (([], 0), []), # Tableau vide (Edge case)
-            (([8, 3, -1, -3, 5, 3, 6, 7, 9, 2, 4, 1, 5], 4), [8, 5, 5, 5, 6, 7, 9, 9, 9, 5]) # Cas complexe plus long
+            (([8, 3, -1, -3, 5, 3, 6, 7, 9, 2, 4, 1, 5], 4), [8, 5, 5, 6, 7, 9, 9, 9, 9, 5]) # Cas complexe plus long
         ]
     },
     {
@@ -538,7 +538,7 @@ EXERCICES = [
             ([("App", ["Auth", "DB", "UI"]), ("UI", ["React"]), ("Auth", ["DB", "Crypto"]), ("DB", ["FS"]), ("Crypto", []), ("React", []), ("FS", [])], 
              ["Crypto", "React", "FS", "UI", "DB", "Auth", "App"])
         ]
-    }
+    },
 
     # =======================================
     # === CATEGORIE : PYTHON CHALLENGING  ===
@@ -586,7 +586,7 @@ EXERCICES = [
             ([(1, 2)], 1),
             ([(1, 2), (2, 3), (3, 4)], 3), # Intervalles collés
             ([(1, 5), (2, 3), (3, 4)], 2),
-            ([(1, 10), (2, 6), (7, 11), (3, 4), (5, 6), (7, 8)], 4),
+            ([(1, 10), (2, 6), (7, 11), (3, 4), (5, 6), (7, 8)], 3),
             ([(0, 1), (0, 1), (0, 1)], 1), # Duplicatas complets
             ([(10, 20), (1, 10)], 2),      # Désordonnés
             ([(5, 10), (1, 5), (10, 15)], 3),
