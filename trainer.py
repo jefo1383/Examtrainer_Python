@@ -5,6 +5,7 @@ import os
 import io
 import re
 import random
+import inspect
 from contextlib import redirect_stdout
 
 # --- COULEURS ---
@@ -81,7 +82,35 @@ def run_tests(exercice):
     print("\n") 
     
     module = charger_solution()
-    if not module: return False
+    if not module:
+        return False
+    
+    # --- DÉTECTION DE L'ARCHITECTURE POO AVANCÉE ---
+    if 'classes_requises' in exercice:
+        for class_name, required_methods in exercice['classes_requises'].items():
+            
+            # 1. Vérifier si la classe existe
+            if not hasattr(module, class_name) or not inspect.isclass(getattr(module, class_name)):
+                print(f"\n{RED}❌ ARCHITECTURE INVALIDE : La classe '{class_name}' est introuvable.{RESET}")
+                print("   Objectif manqué : Tu dois créer la classe demandée.")
+                return False
+                
+            # 2. Vérifier si les méthodes obligatoires existent dans cette classe
+            user_class = getattr(module, class_name)
+            for method_name in required_methods:
+                # Cas spécial pour le constructeur (éviter la validation du constructeur par défaut)
+                if method_name == '__init__':
+                    if getattr(user_class, '__init__') is object.__init__:
+                        print(f"\n{RED}❌ ARCHITECTURE INVALIDE : Le constructeur '__init__' est manquant.{RESET}")
+                        print(f"   Objectif manqué : La classe '{class_name}' doit définir son propre '__init__'.")
+                        return False
+                else:
+                    # Cas classique pour les autres méthodes
+                    if not hasattr(user_class, method_name) or not callable(getattr(user_class, method_name)):
+                        print(f"\n{RED}❌ ARCHITECTURE INVALIDE : La méthode '{method_name}' est introuvable.{RESET}")
+                        print(f"   Objectif manqué : La classe '{class_name}' doit implémenter '{method_name}'.")
+                        return False
+    # ------------------------------------------------------
 
     if not hasattr(module, func_name):
         print(f"\n{RED}❌ Fonction '{func_name}' introuvable.{RESET}")
@@ -479,17 +508,19 @@ EXERCICES = [
     },
     {
         'nom': 'Constellation Mapper',
-        'categorie': 'medium', 'niveau': 1,
+        'categorie': 'medium', 
+        'niveau': 1,
         'prototype': 'def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:',
         'sujet': 'Générez une grille carrée de taille `size` x `size` sous forme de liste de chaînes.\n'
                  'Les espaces vides sont représentés par des points `.` et les étoiles par des `*`.\n'
                  'Les étoiles sont fournies sous la forme de tuples de coordonnées (ligne, colonne).\n'
+                 'Règle : Si une étoile possède des coordonnées en dehors des limites de la grille, elle doit être ignorée.\n'
                  'Type de retour attendu : list[str]',
-        'exemples': '1. stars = [(0, 0), (1, 1)], size = 2\n'
+        'exemples': '1. input = ([(0, 0), (1, 1)], 2)\n'
                     '   output = ["*.", ".*"]\n\n'
-                    '2. stars = [(0, 2)], size = 3\n'
+                    '2. input = ([(0, 2), (5, 5)], 3)\n'
                     '   output = ["..*", "...", "..."]\n\n'
-                    '3. stars = [], size = 1\n'
+                    '3. input = ([], 1)\n'
                     '   output = ["."]',
         'capture_print': False,
         'tests': [
@@ -497,13 +528,14 @@ EXERCICES = [
             (([(0, 2)], 3), ["..*", "...", "..."]),
             (([], 1), ["."]),
             (([(0, 0), (0, 1), (0, 2)], 3), ["***", "...", "..."]),
-            (([(2, 2)], 3), ["...", "...", "..*"]),
+            # TEST MODIFIÉ : Ajout de (5, 5) qui est > size, et (-1, 0) qui est < 0
+            (([(2, 2), (5, 5), (-1, 0)], 3), ["...", "...", "..*"]), 
             (([(0, 0), (1, 3), (2, 2), (4, 4)], 5), ["*....", "...*.", "..*..", ".....", "....*"]),
             (([], 0), []),
-            (([(1, 1), (1, 1)], 3), ["...", ".*.", "..."]), # Étoiles superposées
+            (([(1, 1), (1, 1)], 3), ["...", ".*.", "..."]),
             (([(i, i) for i in range(4)], 4), ["*...", ".*..", "..*.", "...*"]),
             (([(0,9), (1,8), (2,7), (3,6), (4,5), (5,4), (6,3), (7,2), (8,1), (9,0)], 10), 
-             [".........*", "........*.", ".......*..", "......*...", ".....*....", "....*.....", "...*......", "..*.......", ".*........", "*........."]) # Diagonale inverse complexe
+             [".........*", "........*.", ".......*..", "......*...", ".....*....", "....*.....", "...*......", "..*.......", ".*........", "*........."])
         ]
     },
     {
@@ -544,144 +576,422 @@ EXERCICES = [
     # === CATEGORIE : PYTHON CHALLENGING  ===
     # =======================================
     {
-        'nom': 'Run-Length Encoding',
-        'categorie': 'challenging', 'niveau': 1,
-        'prototype': 'def run_length_encoding(s: str) -> str:',
-        'sujet': 'Réalisez la compression par encodage de longueur de plage (RLE) de la chaîne.\n'
-                 'Remplacez chaque séquence de caractères identiques consécutifs par le nombre '
-                 'd\'occurrences suivi du caractère lui-même.\n'
-                 'Si la chaîne d\'entrée est vide, retournez une chaîne vide.',
-        'exemples': '1. input = "aabbc"\n   output = "2a2b1c"\n\n'
-                    '2. input = "a"\n   output = "1a"\n\n'
-                    '3. input = ""\n   output = ""',
+        'nom': 'Spiral Weaver',
+        'categorie': 'challenging', 
+        'niveau': 1,
+        'prototype': 'def spiral_weaver(size: int) -> list[list[int]]:',
+        'sujet': 'Générez une matrice carrée de taille `size * size`.\n'
+                 'Remplissez-la avec les nombres de 1 à `size * size` en spirale,\n'
+                 'en commençant en haut à gauche et en suivant la direction : droite -> bas -> gauche -> haut.\n'
+                 'Type de retour attendu : list[list[int]]',
+        'exemples': '1. input = 3\n'
+                    '   output = [[1, 2, 3], [8, 9, 4], [7, 6, 5]]\n\n'
+                    '2. input = 1\n'
+                    '   output = [[1]]\n\n'
+                    '3. input = 0\n'
+                    '   output = []',
         'capture_print': False,
         'tests': [
-            ("aabbc", "2a2b1c"),
-            ("", ""),
-            ("a", "1a"),
-            ("abc", "1a1b1c"),
-            ("AAAAA", "5A"),
-            ("aAaA", "1a1A1a1A"),
-            ("11223", "212213"),
-            ("  ", "2 "),
-            ("!!!!!!!!!!", "10!"),
-            ("aaabbbbcccddeeeefff", "3a4b3c2d4e3f") # Cas complexe
+            (3, [[1, 2, 3], [8, 9, 4], [7, 6, 5]]),
+            (1, [[1]]),
+            (2, [[1, 2], [4, 3]]),
+            (4, [[1, 2, 3, 4], [12, 13, 14, 5], [11, 16, 15, 6], [10, 9, 8, 7]]),
+            (0, []),
+            (5, [[1, 2, 3, 4, 5], [16, 17, 18, 19, 6], [15, 24, 25, 20, 7], [14, 23, 22, 21, 8], [13, 12, 11, 10, 9]]),
+            (6, [[1, 2, 3, 4, 5, 6], [20, 21, 22, 23, 24, 7], [19, 32, 33, 34, 25, 8], [18, 31, 36, 35, 26, 9], [17, 30, 29, 28, 27, 10], [16, 15, 14, 13, 12, 11]]),
+            (7, [[1, 2, 3, 4, 5, 6, 7], [24, 25, 26, 27, 28, 29, 8], [23, 40, 41, 42, 43, 30, 9], [22, 39, 48, 49, 44, 31, 10], [21, 38, 47, 46, 45, 32, 11], [20, 37, 36, 35, 34, 33, 12], [19, 18, 17, 16, 15, 14, 13]]),
+            (8, [[1, 2, 3, 4, 5, 6, 7, 8], [28, 29, 30, 31, 32, 33, 34, 9], [27, 48, 49, 50, 51, 52, 35, 10], [26, 47, 60, 61, 62, 53, 36, 11], [25, 46, 59, 64, 63, 54, 37, 12], [24, 45, 58, 57, 56, 55, 38, 13], [23, 44, 43, 42, 41, 40, 39, 14], [22, 21, 20, 19, 18, 17, 16, 15]]),
+            (9, [[1, 2, 3, 4, 5, 6, 7, 8, 9], [32, 33, 34, 35, 36, 37, 38, 39, 10], [31, 56, 57, 58, 59, 60, 61, 40, 11], [30, 55, 72, 73, 74, 75, 62, 41, 12], [29, 54, 71, 80, 81, 76, 63, 42, 13], [28, 53, 70, 79, 78, 77, 64, 43, 14], [27, 52, 69, 68, 67, 66, 65, 44, 15], [26, 51, 50, 49, 48, 47, 46, 45, 16], [25, 24, 23, 22, 21, 20, 19, 18, 17]])
         ]
     },
     {
-        'nom': 'Max Intervals',
-        'categorie': 'challenging', 'niveau': 2,
-        'prototype': 'def max_intervals(intervals: list[tuple[int, int]]) -> int:',
-        'sujet': 'Déterminez le cardinal maximal d\'un sous-ensemble d\'intervalles mutuellement compatibles.\n'
-                 'Chaque intervalle est un tuple (début, fin). Si deux intervalles se touchent '
-                 'à la frontière (ex: fin à 5 et début à 5), ils sont compatibles.\n'
+        'nom': 'Matrix Island',
+        'categorie': 'challenging', 
+        'niveau': 1,
+        'prototype': 'def matrix_island(matrix: list[list[int]]) -> int:',
+        'sujet': 'Retournez le nombre d\'îlots composées de `1` dans une matrice.\n'
+                 'Un îlot est un groupe de `1` connectés horizontalement ou verticalement.\n'
                  'Type de retour attendu : int',
-        'exemples': '1. input = [(1, 3), (2, 4), (3, 5)]\n   output = 2\n\n'
-                    '2. input = []\n   output = 0\n\n'
-                    '3. input = [(1, 2)]\n   output = 1',
+        'exemples': '1. input = [[1, 1, 0, 1, 1], [1, 1, 0, 1, 1]]\n'
+                    '   output = 2\n\n'
+                    '2. input = [[1, 1, 1, 1, 1], [1, 1, 0, 1, 1]]\n'
+                    '   output = 1\n\n'
+                    '3. input = []\n'
+                    '   output = 0',
         'capture_print': False,
         'tests': [
-            ([(1, 3), (2, 4), (3, 5)], 2),
+            ([[1, 1, 0, 1, 1], [1, 1, 0, 1, 1]], 2),
+            ([[1, 1, 1, 1, 1], [1, 1, 0, 1, 1]], 1),
             ([], 0),
-            ([(1, 2)], 1),
-            ([(1, 2), (2, 3), (3, 4)], 3), # Intervalles collés
-            ([(1, 5), (2, 3), (3, 4)], 2),
-            ([(1, 10), (2, 6), (7, 11), (3, 4), (5, 6), (7, 8)], 3),
-            ([(0, 1), (0, 1), (0, 1)], 1), # Duplicatas complets
-            ([(10, 20), (1, 10)], 2),      # Désordonnés
-            ([(5, 10), (1, 5), (10, 15)], 3),
-            ([(0, 2), (1, 3), (2, 4), (3, 5), (4, 6), (5, 7), (6, 8), (7, 9), (8, 10), (9, 11)], 5) # Complexe
+            ([[0]], 0),
+            ([[1]], 1),
+            ([[1, 0, 1], [0, 1, 0], [1, 0, 1]], 5),
+            ([[0, 0], [0, 0]], 0),
+            ([[1, 1, 1], [1, 1, 1], [1, 1, 1]], 1),
+            ([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], 4),
+            ([[1, 0, 1, 0], [1, 0, 1, 0], [1, 0, 1, 0]], 2)
         ]
     },
     {
-        'nom': 'Detect Cycle',
-        'categorie': 'challenging', 'niveau': 2,
-        'prototype': 'def detect_cycle(graph: dict[str, list[str]]) -> bool:',
-        'sujet': 'Détectez la présence d\'au moins un cycle au sein d\'un graphe orienté '
-                 'représenté par un dictionnaire (liste d\'adjacence).\n'
+        'nom': 'Graph Cycle Resolver',
+        'categorie': 'challenging', 
+        'niveau': 2,
+        'prototype': 'def graph_cycle_resolver(graph: dict[int, list[int]]) -> bool:',
+        'sujet': 'Prend en paramètre un graphe orienté représenté sous forme de dictionnaire.\n'
+                 'Retournez `True` si un cycle est détecté dans le graphe, sinon `False`.\n'
                  'Type de retour attendu : bool',
-        'exemples': '1. input = {"A": ["B"], "B": ["C"], "C": ["A"]}\n   output = True\n\n'
-                    '2. input = {"A": ["B"], "B": ["C"], "C": []}\n   output = False\n\n'
-                    '3. input = {}\n   output = False',
+        'exemples': '1. input = {0: [1], 1: [2], 2: []}\n'
+                    '   output = False\n\n'
+                    '2. input = {0: [1], 1: [2], 2: [1]}\n'
+                    '   output = True\n\n'
+                    '3. input = {}\n'
+                    '   output = False',
         'capture_print': False,
         'tests': [
-            ({"A": ["B"], "B": ["C"], "C": ["A"]}, True),
-            ({"A": ["B"], "B": ["C"], "C": []}, False),
+            ({0: [1], 1: [2], 2: []}, False),
+            ({0: [1], 1: [2], 2: [1]}, True),
+            ({0: [1], 1: [3], 2: [3], 3: []}, False),
             ({}, False),
-            ({"A": ["A"]}, True), # Self-loop
-            ({"A": ["B", "C"], "B": ["D"], "C": ["D"], "D": []}, False), # Graph en diamant (pas de cycle)
-            ({"A": ["B"], "B": ["C"], "C": ["D"], "D": ["E"], "E": ["C"]}, True),
-            ({"1": ["2"], "2": ["3"], "3": [], "4": ["5"], "5": ["4"]}, True), # Graphe non connexe avec cycle
-            ({"A": []}, False),
-            ({"A": ["B"], "B": ["A"]}, True),
-            ({"A": ["B", "C"], "B": ["C", "D"], "C": ["E"], "D": ["F"], "E": ["F", "G"], "F": ["H"], "G": ["H"], "H": []}, False) # Complexe acyclique
+            ({0: [0]}, True),
+            ({1: [2], 2: [3], 3: [4], 4: [5], 5: []}, False),
+            ({1: [2], 2: [3], 3: [4], 4: [1]}, True),
+            ({1: [2, 3], 2: [4], 3: [4], 4: []}, False),
+            ({0: [1, 2], 1: [2], 2: [0]}, True),
+            ({10: [20], 20: [30], 30: [40], 40: [50], 50: [20]}, True)
         ]
     },
     {
-        'nom': 'Find Shortest Path',
-        'categorie': 'challenging', 'niveau': 3,
-        'prototype': 'def find_shortest_path(grid: list[list[int]], start: tuple[int, int], end: tuple[int, int]) -> int:',
-        'sujet': 'Déterminez le nombre minimal de transitions pour aller de `start` à `end` '
-                 'dans une grille (0 = libre, 1 = mur). Mouvements sur les 4 axes cardinaux.\n'
-                 'Retournez -1 si aucun chemin n\'est possible.\n'
-                 'Type de retour attendu : int',
-        'exemples': '1. grid=[[0, 0], [0, 0]], start=(0,0), end=(1,1)\n   output = 2\n\n'
-                    '2. grid=[[0, 1], [1, 0]], start=(0,0), end=(1,1)\n   output = -1\n\n'
-                    '3. grid=[[0]], start=(0,0), end=(0,0)\n   output = 0',
+        'nom': 'Compression',
+        'categorie': 'challenging', 
+        'niveau': 2,
+        'prototype': 'def compression(text: str, rule: str) -> str | None:',
+        'sujet': 'Écrivez une fonction qui compresse ou décompresse une chaîne selon la règle ("compress" ou "decompress").\n'
+                 'Compression : remplacez les répétitions par le caractère suivi du nombre (ex: "aaa" -> "a3").\n'
+                 'Règle stricte : Si la chaîne compressée n\'est pas plus courte que l\'originale, on retourne la chaîne originale.\n'
+                 'Décompression : inversez le processus. Retournez None si le format est invalide.\n'
+                 'Type de retour attendu : str ou None',
+        'exemples': '1. input = ("aabcccccaaa", "compress")\n'
+                    '   output = "a2b1c5a3"\n\n'
+                    '2. input = ("aabb", "compress")\n'
+                    '   output = "aabb"\n\n'
+                    '3. input = ("a2b1c5a3", "decompress")\n'
+                    '   output = "aabcccccaaa"',
         'capture_print': False,
         'tests': [
-            (([[0, 0], [0, 0]], (0,0), (1,1)), 2),
-            (([[0, 1], [0, 0]], (0,0), (1,1)), 2),
-            (([[0, 1, 0], [0, 1, 0], [0, 0, 0]], (0,0), (0,2)), 6),
-            (([[0, 1], [1, 0]], (0,0), (1,1)), -1), # Bloqué
-            (([[0]], (0,0), (0,0)), 0), # Sur place
-            (([[1]], (0,0), (0,0)), -1), # Départ dans un mur
-            (([], (0,0), (1,1)), -1), # Grille vide
-            (([[0, 0, 0], [1, 1, 0], [0, 0, 0]], (0,0), (2,0)), 6),
-            (([[0, 0, 0, 0, 0]], (0,0), (0,4)), 4), # Ligne droite
-            (
-                (
-                    [
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        [1, 1, 1, 1, 1, 1, 1, 1, 1, 0]
-                    ], 
-                    (0, 0), # Départ en haut à gauche
-                    (9, 9)  # Arrivée en bas à droite
-                ), 
-                54 # Résultat attendu
-            )
+            (("aabcccccaaa", "compress"), "a2b1c5a3"),
+            (("abcd", "compress"), "abcd"),
+            (("aabb", "compress"), "aabb"), 
+            (("a2b1c5a3", "decompress"), "aabcccccaaa"),
+            (("1a", "decompress"), None),
+            (("", "compress"), ""),
+            (("a", "decompress"), None),
+            (("a0b1", "decompress"), None),
+            (("aaabbbccc", "compress"), "a3b3c3"),
+            (("a12", "decompress"), "aaaaaaaaaaaa")
         ]
     },
     {
-        'nom': 'Maximal Square',
-        'categorie': 'challenging', 'niveau': 3,
-        'prototype': 'def maximal_square(matrix: list[list[str]]) -> int:',
-        'sujet': 'Identifiez la taille du côté du plus grand carré composé exclusivement '
-                 'd\'espaces vides `.` dans une matrice 2D (les `o` sont des murs).\n'
+        'nom': 'Word Ladder',
+        'categorie': 'challenging', 
+        'niveau': 2,
+        'prototype': 'def word_ladder(start: str, end: str, word_list: list[str]) -> int:',
+        'sujet': 'Trouvez la longueur du plus court chemin pour transformer le mot `start` en `end`.\n'
+                 'A chaque étape, on ne change qu\'une lettre. Chaque mot intermédiaire doit être dans `word_list`.\n'
+                 'S\'il n\'y a pas de chemin possible, retournez 0.\n'
                  'Type de retour attendu : int',
-        'exemples': "1. input = [['.', '.', '.'], ['.', '.', '.'], ['.', '.', '.']]\n   output = 3\n\n"
-                    "2. input = [['o', 'o'], ['o', 'o']]\n   output = 0\n\n"
-                    "3. input = [['.', 'o'], ['o', '.']]\n   output = 1",
+        'exemples': '1. input = ("hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"])\n'
+                    '   output = 5\n\n'
+                    '2. input = ("a", "c", ["a", "b", "c"])\n'
+                    '   output = 2\n\n'
+                    '3. input = ("hot", "hot", ["hot"])\n'
+                    '   output = 1',
         'capture_print': False,
         'tests': [
-            ([['.', '.', '.'], ['.', '.', '.'], ['.', '.', '.']], 3),
-            ([['o', 'o'], ['o', 'o']], 0),
-            ([['.', 'o'], ['o', '.']], 1),
-            ([['.', '.', 'o'], ['.', '.', 'o'], ['o', 'o', 'o']], 2),
-            ([['.']], 1),
-            ([['o']], 0),
-            ([], 0),
-            ([['.', 'o', '.', '.', '.'], ['.', 'o', '.', '.', '.'], ['.', 'o', '.', '.', '.'], ['.', 'o', 'o', 'o', 'o']], 3),
-            ([['.'] * 10], 1), # Ligne simple
-            ([['.','.','.','.','o'],['.','.','.','.','.'],['.','.','.','.','.'],['.','.','.','.','.'],['o','.','.','.','o']], 4) # Complexe
+            (("hit", "cog", ["hot", "dot", "dog", "lot", "log", "cog"]), 5),
+            (("a", "c", ["a", "b", "c"]), 2),
+            (("hot", "hot", ["hot"]), 1),
+            (("hit", "cog", ["hot", "dot", "dog", "lot", "log"]), 0),
+            (("cat", "dog", ["cot", "dot", "dog"]), 4),
+            (("lead", "gold", ["load", "goad", "gold", "lead"]), 4),
+            (("a", "z", ["b"]), 0),
+            (("same", "same", []), 1),
+            (("run", "walk", ["ran", "man"]), 0),
+            (("cold", "warm", ["cord", "card", "ward", "warm"]), 5)
+        ]
+    },
+    {
+        'nom': 'Prisme Detector',
+        'categorie': 'challenging', 
+        'niveau': 2,
+        'prototype': 'def prisme_detector(matrix: list[str], word: str) -> list[tuple[int, int, str]]:',
+        'sujet': 'Cherchez toutes les occurrences d\'un mot dans une matrice de caractères.\n'
+                 'Le mot peut être lu horizontalement, verticalement, en diagonale, et dans tous les sens.\n'
+                 'Retournez une liste de tuples contenant (ligne, colonne, direction_name).\n'
+                 'Directions : "up", "down", "left", "right", "up_left", "up_right", "down_left", "down_right".\n'
+                 'Type de retour attendu : list[tuple[int, int, str]]',
+        'exemples': '1. input = (["ABC", "DEF", "GHI"], "ABC")\n'
+                    '   output = [(0, 0, "right")]\n\n'
+                    '2. input = (["ABC", "DEF", "GHI"], "ADG")\n'
+                    '   output = [(0, 0, "down")]\n\n'
+                    '3. input = (["ABC", "DEF", "GHI"], "AFI")\n'
+                    '   output = []',
+        'capture_print': False,
+        'tests': [
+            ((["ABC", "DEF", "GHI"], "ABC"), [(0, 0, "right")]),
+            ((["ABC", "DEF", "GHI"], "CBA"), [(0, 2, "left")]),
+            ((["ABC", "DEF", "GHI"], "ADG"), [(0, 0, "down")]),
+            ((["ABC", "DEF", "GHI"], "GDA"), [(2, 0, "up")]),
+            ((["ABC", "DEF", "GHI"], "AEI"), [(0, 0, "down_right")]),
+            ((["ABC", "DEF", "GHI"], "IEA"), [(2, 2, "up_left")]),
+            ((["ABC", "DEF", "GHI"], "CEG"), [(0, 2, "down_left")]),
+            ((["ABC", "DEF", "GHI"], "GEC"), [(2, 0, "up_right")]),
+            ((["ABC", "DEF", "GHI"], "AFI"), []),
+            ((["XY", "YX"], "XY"), [(0, 0, "right"), (0, 0, "down"), (1, 1, "up"), (1, 1, "left")])
+        ]
+    },
+    {
+        'nom': 'Meeting Planner',
+        'categorie': 'challenging', 
+        'niveau': 3,
+        'prototype': 'def meeting_planner(meetings: list[list[int]]) -> dict:',
+        'sujet': 'Placez une liste de réunions (start_time, end_time) dans un minimum de salles possibles.\n'
+                 'Retournez un dictionnaire contenant :\n'
+                 '- "needed_rooms" : le nombre minimal de salles.\n'
+                 '- "rooms_assignements" : un sous-dictionnaire liant chaque numéro de salle à son planning.\n'
+                 'Type de retour attendu : dict',
+        'exemples': '1. input = [[9, 10], [9, 12], [10, 11], [11, 12]]\n'
+                    '   output = {"needed_rooms": 2, "rooms_assignements": {1: [[9, 10], [10, 11], [11, 12]], 2: [[9, 12]]}}\n\n'
+                    '2. input = []\n'
+                    '   output = {"needed_rooms": 0, "rooms_assignements": {}}',
+        'capture_print': False,
+        'tests': [
+            ([[9, 10], [9, 12], [10, 11], [11, 12]], {"needed_rooms": 2, "rooms_assignements": {1: [[9, 10], [10, 11], [11, 12]], 2: [[9, 12]]}}),
+            ([], {"needed_rooms": 0, "rooms_assignements": {}}),
+            ([[1, 2], [2, 3], [3, 4]], {"needed_rooms": 1, "rooms_assignements": {1: [[1, 2], [2, 3], [3, 4]]}}),
+            ([[1, 5], [2, 5], [3, 5], [4, 5]], {"needed_rooms": 4, "rooms_assignements": {1: [[1, 5]], 2: [[2, 5]], 3: [[3, 5]], 4: [[4, 5]]}}),
+            ([[10, 12], [12, 14], [10, 14]], {"needed_rooms": 2, "rooms_assignements": {1: [[10, 12], [12, 14]], 2: [[10, 14]]}}),
+            ([[1, 2], [1, 2], [1, 2]], {"needed_rooms": 3, "rooms_assignements": {1: [[1, 2]], 2: [[1, 2]], 3: [[1, 2]]}}),
+            ([[5, 10]], {"needed_rooms": 1, "rooms_assignements": {1: [[5, 10]]}}),
+            ([[1, 3], [2, 4], [3, 5], [4, 6]], {"needed_rooms": 2, "rooms_assignements": {1: [[1, 3], [3, 5]], 2: [[2, 4], [4, 6]]}}),
+            ([[0, 1], [0, 2], [1, 3], [2, 4]], {"needed_rooms": 2, "rooms_assignements": {1: [[0, 1], [1, 3]], 2: [[0, 2], [2, 4]]}}),
+            ([[10, 11], [9, 10], [11, 12]], {"needed_rooms": 1, "rooms_assignements": {1: [[9, 10], [10, 11], [11, 12]]}})
+        ]
+    },
+    {
+        'nom': 'Course Schedule',
+        'categorie': 'challenging',
+        'niveau': 3,
+        'prototype': 'def can_finish_courses(num_courses: int, prerequisites: list[list[int]]) -> bool:',
+        'sujet': 'Les cours sont numérotés de 0 à `num_courses - 1`.\n'
+                 'Chaque prérequis est défini sous la forme [cours, cours_requis].\n'
+                 'Exemple : [1, 0] signifie que vous devez terminer le cours 0 avant le cours 1.\n'
+                 'Retournez `True` s\'il est possible de terminer tous les cours, sinon `False` (s\'il y a un cycle).\n'
+                 'Type de retour attendu : bool',
+        'exemples': '1. input = (2, [[1, 0]])\n'
+                    '   output = True\n\n'
+                    '2. input = (2, [[1, 0], [0, 1]])\n'
+                    '   output = False\n\n'
+                    '3. input = (1, [])\n'
+                    '   output = True',
+        'capture_print': False,
+        'tests': [
+            ((2, [[1, 0]]), True),
+            ((2, [[1, 0], [0, 1]]), False),
+            ((4, [[1, 0], [2, 1], [3, 2]]), True),
+            ((4, [[1, 0], [2, 1], [3, 2], [1, 3]]), False),
+            ((1, []), True),
+            ((5, [[1, 4], [2, 4], [3, 1], [3, 2]]), True),
+            ((3, [[0, 1], [1, 2], [2, 0]]), False),
+            ((5, []), True),
+            ((6, [[1, 0], [2, 0], [3, 1], [4, 2], [5, 3], [5, 4]]), True),
+            ((10, [[1, 0], [2, 1], [3, 2], [4, 3], [5, 4], [6, 5], [7, 6], [8, 7], [9, 8], [0, 9]]), False)
+        ]
+    },
+    {
+        'nom': 'Assign Meeting Rooms',
+        'categorie': 'challenging',
+        'niveau': 3,
+        'prototype': 'def assign_meeting_rooms(intervals: list[list[int]]) -> list[list[list[int]]]:',
+        'sujet': 'Répartissez des réunions `[start, end]` dans le minimum de salles possible.\n'
+                 'Une réunion se terminant à `x` ne rentre pas en conflit avec une commençant à `x`.\n'
+                 'Parcourez les salles existantes dans leur ordre de création.\nAssignez la réunion à la *première* '
+                 'salle disponible.\nSi aucune ne convient, créez une nouvelle salle.\n'
+                 'Les salles doivent etre dans l\'ordre chronologique des reunions.\n'
+                 'Type de retour attendu : list[list[list[int]]]',
+        'exemples': '1. input = [[0, 40], [5, 10], [15, 20]]\n'
+                    '   output = [[[0, 40]], [[5, 10], [15, 20]]]\n\n'
+                    '2. input = [[7, 10], [2, 4]]\n'
+                    '   output = [[[2, 4], [7, 10]]]\n\n'
+                    '3. input = []\n'
+                    '   output = []',
+        'capture_print': False,
+        'tests': [
+            ([[0, 40], [5, 10], [15, 20]], [[[0, 40]], [[5, 10], [15, 20]]]),
+            ([[7, 10], [2, 4]], [[[2, 4], [7, 10]]]),
+            ([], []),
+            ([[1, 2], [2, 3], [3, 4]], [[[1, 2], [2, 3], [3, 4]]]),
+            ([[1, 5], [2, 6], [3, 7]], [[[1, 5]], [[2, 6]], [[3, 7]]]),
+            ([[1, 10], [2, 5], [6, 8], [9, 12]], [[[1, 10]], [[2, 5], [6, 8], [9, 12]]]),
+            ([[1, 3], [1, 3], [1, 3]], [[[1, 3]], [[1, 3]], [[1, 3]]]),
+            ([[5, 10]], [[[5, 10]]]),
+            ([[10, 15], [5, 10], [0, 5]], [[[0, 5], [5, 10], [10, 15]]]),
+            ([[1, 10], [2, 7], [3, 19], [8, 12], [10, 20], [11, 30]], [[[1, 10], [10, 20]], [[2, 7], [8, 12]], [[3, 19]], [[11, 30]]])
+        ]
+    },
+
+    # =======================================
+    # === CATEGORIE : PYTHON IN-DEPTH     ===
+    # =======================================
+    {
+        'nom': 'Search Suggestions System',
+        'categorie': 'in-depth',
+        'niveau': 1,
+        'prototype': 'def suggested_products(products: list[str], search_word: str) -> list[list[str]]:',
+        'sujet': 'Étant donné une liste de noms de produits et un mot de recherche, retournez une liste de suggestions après chaque caractère tapé du mot de recherche.\n'
+                 'Pour chaque préfixe du mot de recherche :\n'
+                 '- trouvez tous les produits qui commencent par ce préfixe.\n'
+                 '- retournez au maximum trois noms de produits.\n'
+                 '- les suggestions doivent être triées par ordre lexicographique (alphabétique).\n'
+                 'Si aucun produit ne correspond à un préfixe, retournez une liste vide pour ce préfixe.\n'
+                 'Type de retour attendu : list[list[str]]',
+        'exemples': '1. products = ["mobile", "mouse", "moneypot", "monitor", "mousepad"], search_word = "mouse"\n'
+                    '   output = [["mobile", "moneypot", "monitor"], ["mobile", "moneypot", "monitor"], ["mouse", "mousepad"], ["mouse", "mousepad"], ["mouse", "mousepad"]]\n\n'
+                    '2. products = ["havana"], search_word = "havana"\n'
+                    '   output = [["havana"], ["havana"], ["havana"], ["havana"], ["havana"], ["havana"]]\n\n'
+                    '3. products = ["bags","baggage","banner","box","cloths"], search_word = "bags"\n'
+                    '   output = [["baggage", "bags", "banner"], ["baggage", "bags", "banner"], ["baggage", "bags"], ["bags"]]',
+        'capture_print': False,
+        'tests': [
+            ((["mobile", "mouse", "moneypot", "monitor", "mousepad"], "mouse"), [["mobile", "moneypot", "monitor"], ["mobile", "moneypot", "monitor"], ["mouse", "mousepad"], ["mouse", "mousepad"], ["mouse", "mousepad"]]),
+            ((["havana"], "havana"), [["havana"], ["havana"], ["havana"], ["havana"], ["havana"], ["havana"]]),
+            ((["bags", "baggage", "banner", "box", "cloths"], "bags"), [["baggage", "bags", "banner"], ["baggage", "bags", "banner"], ["baggage", "bags"], ["bags"]]),
+            ((["havana"], "tatiana"), [[], [], [], [], [], [], []]),
+            (([], "test"), [[], [], [], []]),
+            ((["apple", "app", "application", "aptitude"], "app"), [["app", "apple", "application"], ["app", "apple", "application"], ["app", "apple", "application"]]),
+            ((["a", "b", "c", "d"], "a"), [["a"]]),
+            ((["zebra", "zorro", "zero", "z"], "z"), [["z", "zebra", "zero"]]),
+            ((["abcd", "abce", "abcf", "abcg", "abch"], "abc"), [["abcd", "abce", "abcf"], ["abcd", "abce", "abcf"], ["abcd", "abce", "abcf"]]),
+            ((["x", "xy", "xyz"], "xyza"), [["x", "xy", "xyz"], ["xy", "xyz"], ["xyz"], []])
+        ]
+    },
+    {
+        'nom': 'Set Merge / Union Find',
+        'categorie': 'in-depth',
+        'niveau': 2,
+        'classes_requises': {'UnionFind': ['__init__', 'find', 'union', 'connected']},
+        'prototype': 'def simulate_union_find(n: int, operations: list[tuple[str, int, int]]) -> list[int]:',
+        'sujet': 'Implémentez une structure de données UnionFind.\n'
+                 'La structure doit supporter :\n'
+                 '  - trouver le représentant d\'une valeur\n'
+                 '  - fusionner deux ensembles\n'
+                 '  - vérifier si deux valeurs sont connectées\n\n'
+                 'Méthodes :\n'
+                 '  __init__(n)\n'
+                 '    Créer n ensembles séparés.\n\n'
+                 '  find(x)\n'
+                 '    Retourner le représentant de l\'ensemble contenant x.\n'
+                 '    Retourner -1 si x n\'est pas présent.\n\n'
+                 '  union(x, y)\n'
+                 '    Fusionner les ensembles contenant x et y.\n'
+                 '    Retourner True si une fusion a eu lieu.\n'
+                 '    Retourner False si x et y étaient déjà dans le même ensemble.\n\n'
+                 '  connected(x, y)\n'
+                 '    Retourner True si x et y sont dans le même ensemble.\n'
+                 '    Retourner False sinon.\n\n'
+                 'Implémentez la classe ET la fonction utilitaire `simulate_union_find(n, operations)`.\n'
+                 'Type de retour attendu pour le wrapper : list[int]',
+        'exemples': '1. n = 5, operations = [("connected", 0, 1), ("union", 0, 1), ("connected", 0, 1), ("union", 0, 1)]\n'
+                    '   output = [0, 1, 1, 0]  (False, True, True, False)\n\n'
+                    '2. n = 3, operations = [("union", 0, 1), ("union", 1, 2), ("connected", 0, 2)]\n'
+                    '   output = [1, 1, 1]\n\n'
+                    '3. n = 2, operations = [("find", 0, 0), ("find", 1, 0)]\n'
+                    '   output = [0, 1] (En supposant que find retourne la racine)',
+        'capture_print': False,
+        'tests': [
+            ((5, [("connected", 0, 1), ("union", 0, 1), ("connected", 0, 1), ("union", 0, 1)]), [0, 1, 1, 0]),
+            ((3, [("union", 0, 1), ("union", 1, 2), ("connected", 0, 2)]), [1, 1, 1]),
+            ((4, [("connected", 0, 3), ("union", 0, 1), ("union", 2, 3), ("union", 1, 2), ("connected", 0, 3)]), [0, 1, 1, 1, 1]),
+            ((2, [("union", 0, 0)]), [0]),
+            ((1, [("connected", 0, 0)]), [1]),
+            ((5, [("union", 0, 1), ("union", 2, 3), ("connected", 1, 2)]), [1, 1, 0]),
+            ((10, [("union", i, i+1) for i in range(9)] + [("connected", 0, 9)]), [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+            ((3, [("union", 0, 1), ("union", 0, 1), ("union", 0, 1)]), [1, 0, 0]),
+            ((4, [("connected", 1, 3)]), [0]),
+            ((6, [("union", 0, 1), ("union", 4, 5), ("union", 2, 3), ("union", 1, 2), ("connected", 0, 3), ("connected", 0, 5)]), [1, 1, 1, 1, 1, 0])
+        ]
+    },
+    {
+        'nom': 'LRU Cache',
+        'categorie': 'in-depth',
+        'niveau': 2,
+        'classes_requises': {'LRUCache': ['__init__', 'get', 'put']},
+        'prototype': 'def simulate_lru_cache(capacity: int, operations: list[tuple[str, int, int]]) -> list[int]:',
+        'sujet': 'Implémentez une classe de cache LRU (Least Recently Used).\n'
+                 'Le cache stocke des clés entières et des valeurs entières.\n'
+                 'Il a une capacité positive fixe.\n\n'
+                 'Méthodes :\n'
+                 '  __init__(capacity)\n'
+                 '    Créer un cache vide avec la capacité donnée.\n\n'
+                 '  get(key)\n'
+                 '    Si la clé existe, retourner sa valeur et la marquer comme récemment utilisée.\n'
+                 '    Si la clé n\'existe pas, retourner -1.\n\n'
+                 '  put(key, value)\n'
+                 '    Insérer ou mettre à jour la clé avec la valeur.\n'
+                 '    Marquer la clé comme récemment utilisée.\n'
+                 '    Si le cache dépasse sa capacité, supprimer la clé la moins récemment utilisée.\n\n'
+                 'Implémentez la classe ET la fonction utilitaire `simulate_lru_cache(capacity, operations)`.\n'
+                 'Retournez une liste contenant UNIQUEMENT les résultats des "get".\n'
+                 'Type de retour attendu pour le wrapper : list[int]',
+        'exemples': '1. capacity = 2, operations = [("put", 1, 1), ("put", 2, 2), ("get", 1, 0), ("put", 3, 3), ("get", 2, 0)]\n'
+                    '   output = [1, -1]\n\n'
+                    '2. capacity = 1, operations = [("put", 1, 1), ("get", 1, 0), ("put", 2, 2), ("get", 1, 0)]\n'
+                    '   output = [1, -1]\n\n'
+                    '3. capacity = 2, operations = [("get", 5, 0)]\n'
+                    '   output = [-1]',
+        'capture_print': False,
+        'tests': [
+            ((2, [("put", 1, 1), ("put", 2, 2), ("get", 1, 0), ("put", 3, 3), ("get", 2, 0), ("put", 4, 4), ("get", 1, 0), ("get", 3, 0), ("get", 4, 0)]), [1, -1, -1, 3, 4]),
+            ((1, [("put", 1, 1), ("get", 1, 0), ("put", 2, 2), ("get", 1, 0)]), [1, -1]),
+            ((2, [("get", 5, 0)]), [-1]),
+            ((2, [("put", 2, 1), ("put", 1, 1), ("put", 2, 3), ("put", 4, 1), ("get", 1, 0), ("get", 2, 0)]), [-1, 3]),
+            ((3, [("put", 1, 1), ("put", 2, 2), ("put", 3, 3), ("put", 4, 4), ("get", 4, 0), ("get", 3, 0), ("get", 2, 0), ("get", 1, 0), ("put", 5, 5), ("get", 1, 0), ("get", 2, 0), ("get", 3, 0), ("get", 4, 0), ("get", 5, 0)]), [4, 3, 2, -1, -1, 2, 3, -1, 5]),
+            ((2, [("put", 2, 1), ("put", 2, 2), ("get", 2, 0), ("put", 1, 1), ("put", 4, 1), ("get", 2, 0)]), [2, -1]),
+            ((1, [("put", 1, 10), ("put", 2, 20), ("put", 3, 30), ("get", 1, 0), ("get", 2, 0), ("get", 3, 0)]), [-1, -1, 30]),
+            ((4, [("put", 1, 1), ("put", 2, 2), ("put", 3, 3), ("get", 1, 0), ("put", 4, 4), ("put", 5, 5), ("get", 2, 0), ("get", 3, 0)]), [1, -1, 3]),
+            ((2, [("put", 1, 0), ("put", 2, 2), ("get", 1, 0), ("put", 3, 3), ("get", 2, 0), ("put", 4, 4), ("get", 1, 0), ("get", 3, 0), ("get", 4, 0)]), [0, -1, -1, 3, 4]),
+            ((2, []), [])
+        ]
+    },
+    {
+        'nom': 'Bridge Connections',
+        'categorie': 'in-depth',
+        'niveau': 3,
+        'prototype': 'def find_bridges(graph: dict[int, list[int]]) -> list[tuple[int, int]]:',
+        'sujet': 'Étant donné un graphe non orienté, retournez tous les ponts (bridges) du graphe.\n'
+                 'Un pont est une arête qui déconnecte le graphe si elle est supprimée.\n'
+                 'Règles :\n'
+                 '- Retournez chaque pont une seule fois.\n'
+                 '- Chaque arête retournée doit être ordonnée ainsi : (noeud_le_plus_petit, noeud_le_plus_grand).\n'
+                 '- La liste finale doit être triée par ordre croissant.\n'
+                 'Type de retour attendu : list[tuple[int, int]]',
+        'exemples': '1. graph = {0: [1], 1: [0, 2], 2: [1]}\n'
+                    '   output = [(0, 1), (1, 2)]\n\n'
+                    '2. graph = {0: [1, 2], 1: [0, 2], 2: [0, 1, 3], 3: [2]}\n'
+                    '   output = [(2, 3)]\n\n'
+                    '3. graph = {0: [1, 2], 1: [0, 2], 2: [0, 1]}\n'
+                    '   output = []',
+        'capture_print': False,
+        'tests': [
+            ({0: [1], 1: [0, 2], 2: [1]}, [(0, 1), (1, 2)]),
+            ({0: [1, 2], 1: [0, 2], 2: [0, 1, 3], 3: [2]}, [(2, 3)]),
+            ({0: [1, 2], 1: [0, 2], 2: [0, 1]}, []),
+            ({0: [1], 1: [0]}, [(0, 1)]),
+            ({0: []}, []),
+            ({0: [1], 1: [0], 2: [3], 3: [2]}, [(0, 1), (2, 3)]),
+            ({0: [1, 2, 3], 1: [0], 2: [0], 3: [0]}, [(0, 1), (0, 2), (0, 3)]),
+            ({0: [1, 2], 1: [0, 2], 2: [0, 1, 3], 3: [2, 4, 5], 4: [3, 5], 5: [3, 4]}, [(2, 3)]),
+            ({0: [1, 2, 3], 1: [0, 2, 3], 2: [0, 1, 3], 3: [0, 1, 2]}, []),
+            ({0: [1], 1: [0, 2], 2: [1, 3], 3: [2, 4], 4: [3]}, [(0, 1), (1, 2), (2, 3), (3, 4)])
         ]
     }
 ]
@@ -709,10 +1019,6 @@ def main():
     
     if not categorie_choisie:
         print(f"{RED}Choix invalide. Arrêt du programme.{RESET}")
-        sys.exit()
-        
-    if categorie_choisie == 'in-depth':
-        print(f"\n{CYAN}La catégorie 'Python in-depth' est en cours de construction. À bientôt !{RESET}")
         sys.exit()
 
     # Filtrage des exercices selon la catégorie
