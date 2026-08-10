@@ -6,6 +6,7 @@ import io
 import re
 import random
 import inspect
+import copy
 from contextlib import redirect_stdout
 
 # --- COULEURS ---
@@ -121,18 +122,19 @@ def run_tests(exercice):
     
     for i, (args, expected) in enumerate(exercice['tests']):
         try:
+            safe_args = copy.deepcopy(args)
             if exercice.get('capture_print'):
                 f = io.StringIO()
                 with redirect_stdout(f):
-                    user_func(args)
+                    user_func(safe_args)
                 result = f.getvalue().strip()
                 expected = expected.strip()
             else:
                 # Si args est un tuple, on décompresse les arguments (pour les fonctions à arguments multiples)
-                if isinstance(args, tuple) and type(args).__name__ == 'tuple': 
-                    result = user_func(*args)
+                if isinstance(safe_args, tuple) and type(safe_args).__name__ == 'tuple': 
+                    result = user_func(*safe_args)
                 else: 
-                    result = user_func(args)
+                    result = user_func(safe_args)
                 
             if result != expected:
                 print(f"\n{RED}❌ TEST {i+1} ÉCHOUÉ{RESET}")
@@ -610,7 +612,8 @@ EXERCICES = [
         'niveau': 1,
         'prototype': 'def matrix_island(matrix: list[list[int]]) -> int:',
         'sujet': 'Retournez le nombre d\'îlots composées de `1` dans une matrice.\n'
-                 'Un îlot est un groupe de `1` connectés horizontalement ou verticalement.\n'
+                 'Un îlot est un groupe de `1` connectés horizontalement ou verticalement,\n'
+                 'et entoures de `0` ou des limites de la matrice.\n'
                  'Type de retour attendu : int',
         'exemples': '1. input = [[1, 1, 0, 1, 1], [1, 1, 0, 1, 1]]\n'
                     '   output = 2\n\n'
