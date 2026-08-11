@@ -136,7 +136,19 @@ def run_tests(exercice):
                 else: 
                     result = user_func(safe_args)
                 
-            if result != expected:
+            # On vérifie si l'exercice autorise le désordre
+            ignore_order = exercice.get('ignore_order', False)
+            
+            # Si le flag est actif et qu'on a bien deux listes, on les trie avant de comparer
+            if ignore_order and isinstance(result, list) and isinstance(expected, list):
+                try:
+                    is_correct = sorted(result) == sorted(expected)
+                except TypeError:
+                    is_correct = result == expected # Sécurité si les éléments ne sont pas triables
+            else:
+                is_correct = result == expected
+                
+            if not is_correct:
                 print(f"\n{RED}❌ TEST {i+1} ÉCHOUÉ{RESET}")
                 print(f"   Entrée   : {args}")
                 print(f"   Attendu  : {repr(expected)}")
@@ -144,6 +156,7 @@ def run_tests(exercice):
                 return False
             else:
                 print(f"{GREEN}TEST {i+1} ---------- 🔥{RESET}")
+            time.sleep(0.25)
 
         except Exception as e:
             print(f"\n{RED}❌ ERREUR TEST {i+1} (Planté): {e}{RESET}")
@@ -726,6 +739,7 @@ EXERCICES = [
         'nom': 'Prisme Detector',
         'categorie': 'challenging', 
         'niveau': 2,
+        'ignore_order': True,
         'prototype': 'def prisme_detector(matrix: list[str], word: str) -> list[tuple[int, int, str]]:',
         'sujet': 'Cherchez toutes les occurrences d\'un mot dans une matrice de caractères.\n'
                  'Le mot peut être lu horizontalement, verticalement, en diagonale, et dans tous les sens.\n'
