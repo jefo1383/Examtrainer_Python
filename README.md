@@ -1,6 +1,6 @@
 # 🐍 Python Exam Trainer
 
-Un simulateur d'examen local (style "Examshell") pour s'entraîner aux algorithmes Python.
+Un simulateur d'examen local pour s'entraîner aux algorithmes Python.
 Ce projet génère un **examen blanc complet** en tirant au sort des exercices parmi une vaste base de données, testant votre code avec une validation automatique stricte.
 
 ## 📋 Description
@@ -51,35 +51,35 @@ python3 trainer.py
 
 ## 📚 Liste des Exercices (Base de données)
 
-Le programme choisit actuellement parmi **25 exercices** répartis par difficulté :
+Le programme choisit actuellement parmi des exercices répartis par difficulté :
 
 ### 🟢 Parcours : Python Basic
 Conçu pour réviser la syntaxe fondamentale, les boucles et les tris simples.
-* **String Sculptor** : Manipulation de string (alternance Maj/Min).
-* **FizzBuzz** : Boucles, conditions et modulo.
-* **Convert Base** : Algorithme de conversion (Bases 2 à 36).
-* **Bracket Validator** : Validation de parenthèses (Stack logique avec caractères parasites).
-* **Matrix Reverse / Transpose / Sort Rev** : Opérations et transformations sur matrices 2D.
-* **Is Palindrome / Rot 13** : Analyse et chiffrement de chaînes.
-* **Shadow Merge / Twist Shake** : Fusion et rotation de listes.
-* **Cryptic Sort / Custom Sort** : Tris multi-critères avancés.
+* Manipulation de string (alternance Maj/Min).
+* Boucles, conditions et modulo.
+* Algorithme de conversion (Bases 2 à 36).
+* Validation de parenthèses (Stack logique avec caractères parasites).
+* Opérations et transformations sur matrices 2D.
+* Analyse et chiffrement de chaînes.
+* Fusion et rotation de listes.
+* Tris multi-critères avancés.
 
 ### 🟡 Parcours : Python Medium
 Conçu pour introduire les algorithmes classiques et la manipulation de structures imbriquées.
-* **Palindrome Partitioning** : Découpage optimal de chaînes.
-* **Is Rotation** : Vérification de décalage circulaire de tableaux.
-* **Max Sliding Window** : Analyse de sous-tableaux par fenêtre glissante.
-* **Merge Sorted List / List Intersection** : Algorithmique ensembliste avec préservation d'ordre.
-* **Constellation Mapper** : Génération de grilles 2D par coordonnées.
-* **Packages Dependencies** : Ordonnancement conditionnel et résolution de graphes acycliques (DAG).
+* Découpage optimal de chaînes.
+* Vérification de décalage circulaire de tableaux.
+* Analyse de sous-tableaux par fenêtre glissante.
+* Algorithmique ensembliste avec préservation d'ordre.
+* Génération de grilles 2D par coordonnées.
+* Ordonnancement conditionnel et résolution de graphes acycliques (DAG).
 
 ### 🔴 Parcours : Python Challenging
 Conçu pour repousser les limites avec des algorithmes d'optimisation (Graphes, DP, Gloutons).
-* **Run-Length Encoding (RLE)** : Compression de données.
-* **Max Intervals** : Ordonnancement glouton d'intervalles (*Interval Scheduling*).
-* **Detect Cycle** : Parcours en profondeur (DFS 3-états) dans des graphes orientés.
-* **Find Shortest Path** : Parcours en largeur (BFS) dans des grilles labyrinthiques.
-* **Maximal Square** : Programmation Dynamique (DP) sur cartes 2D.
+* Compression/decompression de données.
+* Ordonnancement glouton d'intervalles (*Interval Scheduling*).
+* Parcours en profondeur (DFS 3-états) dans des graphes orientés.
+* Parcours en largeur (BFS) dans des listes de strings.
+* Programmation Dynamique (DP) sur cartes 2D.
 
 ### 🟣 Parcours : Python In-Depth
 *En cours de construction...*
